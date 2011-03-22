@@ -1,0 +1,95 @@
+#content {
+  margin: auto;
+  width: 960px;
+}
+
+#header {
+  position: relative;
+}
+  #header ul {
+    height: 1.25em;
+    left: 0;
+    -moz-border-radius-bottomright: 20px;
+    -webkit-border-bottom-right-radius: 20px;
+    padding: 0.625em 0;
+    position: absolute;
+    top: 0;
+    width: 29.375em;
+  }
+  #header li {
+    display: inline;
+  }
+    #header li a {
+      font-weight: bold;
+      padding: 1.25em 1.75em;
+      text-decoration: none;
+    }
+    #header li a:hover {
+      text-decoration: none;
+    }
+
+#logo {
+  margin-right: 5.625em;
+  text-align: right;
+}
+  #logo a {
+    display: block;
+    font-family: Georgia, serif;
+    font-size: 2em;
+    line-height: 1.25em;
+    text-decoration: none;
+  }
+
+#swooshie {
+  height: 2.5em;
+  position: absolute;
+  top: 2.5em;
+  width: 23.75em;
+}
+  #swooshie div {
+    height: 2.5em;
+    -moz-border-radius-topleft: 20px;
+    -webkit-border-top-left-radius: 20px;
+  }
+
+#main {
+  position: relative;
+}
+  #main .percent-block {
+    border: solid .25em transparent;
+    height: 23.25em;
+    -moz-border-radius: 20px;
+    -webkit-border-radius: 20px;
+    padding: 0 1em;
+    width: 21.25em;
+  }
+  #main #software-development {
+    margin-left: 5.625em;
+    margin-top: 2.5em;
+  }
+  #main #interaction-design {
+    margin-left: 30.625em;
+    margin-top: 1.25em;
+  }
+  #main #divider {
+    display: none;
+    height: 16.25em;
+    left: 21.875em;
+    overflow: hidden;
+    position: absolute;
+    top: 16.25em;
+    width: 16.25em;
+  }
+    #main #divider img {
+      bottom: 0;
+      left: 0;
+      position: absolute;
+    }
+
+#footer {
+  font-size: 0 .75em;
+  line-height: 1.6667em;
+  margin-top: 1.6667em;
+  text-align: right;
+}
+

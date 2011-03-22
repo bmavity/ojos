@@ -1,0 +1,64 @@
+body {
+  font-family: Tahoma, sans-serif;
+  font-size: 16px;
+  line-height: 1.25em;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: Georgia, serif;
+}
+
+h1 {
+  font-size: 2em;
+  line-height: 1.25em;
+}
+
+h2 {
+  font-size: 1.5em;
+  line-height: 1.25em;
+  margin-top: 0.416667em;
+}
+
+h3 {
+  font-size: 1.25em;
+  line-height: 1.25em;
+  margin-top: 0.75em;
+}
+
+h4,
+h5 {
+  font-size: 1em;
+  line-height: 1.25em;
+}
+
+p {
+  font-size: 1em;
+  line-height: 1.25em;
+}
+
+blockquote {
+  font-size: 0.75em;
+  line-height: 1.6667em;
+  margin: 1.6667em 5em;
+  quotes: none;
+}
+  blockquote p {
+    font-size: inherit;
+    line-height: inherit;
+  }
+
+li {
+  font-size: 1em;
+  line-height: 1.25em;
+}
+
+div.comments {
+  font-size: 1em;
+  line-height: 1.25em;
+}
+

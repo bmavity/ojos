@@ -1,0 +1,10 @@
+.mouse {
+  background-image: url('../img/cursor.png');
+  position: absolute;
+  background-repeat: no-repeat;
+  height: 22px;
+  min-width: 15px;
+  z-index: 100;
+  top:0;
+  left:0;
+}
