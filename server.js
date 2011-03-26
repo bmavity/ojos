@@ -3,6 +3,9 @@ var connect = require('connect'),
     jsdom = require('jsdom'),
     caruso = require('caruso'),
     sessionTracker = require('./sessionTracker'),
+    resources = {
+      sessions: require('./resources/sessions')
+    },
     server,
     socketServer;
 
@@ -34,9 +37,13 @@ var routes = function routes(app) {
   });
 
   app.post('/sessions/start', function(req, res) {
+    var resource = resources.sessions.start();
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
-      test: 1
+      resource: resource,
+      actions: {
+        view: '/sessions/view/' + resource.id
+      }
     }));
   });
 };
