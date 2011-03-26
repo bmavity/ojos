@@ -102,6 +102,10 @@
     setCursorPosition(evt.pageX, evt.pageY);
   }));
 
-  init();
+  var $startSession = $('#startSession');
+  $startSession.submit(function(evt) {
+    startSession();
+    evt.preventDefault();
+  });
 })(jQuery);
 
