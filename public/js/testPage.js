@@ -104,7 +104,13 @@
 
   var $startSession = $('#startSession');
   $startSession.submit(function(evt) {
-    startSession();
+    $.ajax({
+      type: $startSession.attr('method'),
+      url: $startSession.attr('action'),
+      success: function(data) {
+        console.log(data);
+      }
+    });
     evt.preventDefault();
   });
 })(jQuery);
