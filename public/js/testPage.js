@@ -9,9 +9,8 @@
     console.log(m);
   });
 
-  socket.connect();
-
   var init = function() {
+    socket.connect();
     startSession();
     setScreenSize();
     setContent();
@@ -112,6 +111,7 @@
         Object.keys(actions).forEach(function(key) {
           $actions.find('#' + key).val(actions[key]);
         });
+        init();
       }
     });
     evt.preventDefault();
