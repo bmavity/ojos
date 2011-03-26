@@ -8,8 +8,7 @@ var connect = require('connect'),
           jsdom.env(__dirname + '/views/index.html', [
             'http://code.jquery.com/jquery-1.5.min.js',
             caruso.pathTo('text'),
-            caruso.pathTo('injector'),
-            'function() { };'
+            caruso.pathTo('injector')
           ], function(errors, window) {
             var $ = window.$,
                 $document = $(window.document);
