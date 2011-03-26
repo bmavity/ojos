@@ -108,10 +108,15 @@
       type: $startSession.attr('method'),
       url: $startSession.attr('action'),
       success: function(data) {
-        console.log(data);
+        var actions = data.actions;
+        Object.keys(actions).forEach(function(key) {
+          $actions.find('#' + key).val(actions[key]);
+        });
       }
     });
     evt.preventDefault();
   });
+
+  var $actions = $('#actions');
 })(jQuery);
 

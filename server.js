@@ -42,7 +42,7 @@ var routes = function routes(app) {
     res.end(JSON.stringify({
       resource: resource,
       actions: {
-        view: '/sessions/view/' + resource.id
+        view: req.headers.origin + '/sessions/view/' + resource.id
       }
     }));
   });

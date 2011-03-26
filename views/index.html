@@ -16,12 +16,15 @@
 <style>body {background-color: #373A45;}body a {color: #78241D;}#content {background-color: #FFEDBE;color: #5E3E35;}#logo {}#logo a {color: #5E3E35;}#header {}#header p {color: #78241D;}#header ul {background-color: #373A45;}#header li {}#header li a {color: #C2C2C2;}#header li a:hover {cursor: pointer;}#swooshie {background-color: #373A45;}#swooshie div {background-color: #FFEDBE;}#main {}#main .percent-block {border-color: #5E3E35;}#footer {background-color: #373A45;color: #C2C2C2;}</style>
 
 <style>
-  #startSession {
+  #controlPanel {
     background-color:#EEE;
     border:solid 2px black;
     bottom:0;
     left:0;
     position:absolute;
+  }
+  #view {
+    width:400px;
   }
 </style>
 </head>
@@ -49,9 +52,14 @@
     <div id="footer">&copy;2008-2010 Brian Mavity</div>
   </div>
 
-  <form id="startSession" action="/sessions/start" method="post">
-    <input type="submit" value="Start Session">
-  </form>
+  <div id="controlPanel">
+    <form id="startSession" action="/sessions/start" method="post">
+      <input type="submit" value="Start Session">
+    </form>
+    <div id="actions">
+      <input id="view" type="text">
+    </div>
+  </div>
 
   <script src="js/jquery.min.js"></script>
   <script src="socket.io/socket.io.js"></script>
