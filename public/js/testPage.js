@@ -110,6 +110,7 @@
         var actions = data.actions;
         Object.keys(actions).forEach(function(key) {
           $actions.find('#' + key).val(actions[key]);
+          $startSession.append($('<a></a>').attr('href', actions[key]).html('Join'));
         });
         init();
       }

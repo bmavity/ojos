@@ -9,30 +9,32 @@ var connect = require('connect'),
     server,
     socketServer;
 
+var render = function(res, fileName, data) {
+  jsdom.env(fileName, [
+    'http://code.jquery.com/jquery-1.5.min.js',
+    caruso.pathTo('text'),
+    caruso.pathTo('injector')
+  ], function(errors, window) {
+    var $ = window.$,
+        $document = $(window.document);
+    //$document.inject(data);
+    console.log(window.document.innerHTML);
+    $('script:not(body script)').remove();
+    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.end(window.document.innerHTML);
+  });
+};
+
 var routes = function routes(app) {
   app.get('/', function(req, res) {
-    jsdom.env(__dirname + '/views/index.html', [
-      'http://code.jquery.com/jquery-1.5.min.js',
-      caruso.pathTo('text'),
-      caruso.pathTo('injector')
-    ], function(errors, window) {
-      var $ = window.$,
-          $document = $(window.document);
-          /*
-      $document.inject({
-        title: 'this is a test of the emergency broadcast system',
-        navLinks: [
-          { href: '/', html: 'home' },
-          { href: '/blog', html: 'blog' },
-          { href: '/experience', html: 'experience' },
-          { href: '/contact', html: 'contact' }
-        ]
-      });
-      */
-      console.log(window.document.innerHTML);
-      $('script:not(body script)').remove();
-      res.writeHead(200, { 'Content-Type': 'text/html' });
-      res.end(window.document.innerHTML);
+    render(res, __dirname + '/views/index.html', {
+      title: 'this is a test of the emergency broadcast system',
+      navLinks: [
+        { href: '/', html: 'home' },
+        { href: '/blog', html: 'blog' },
+        { href: '/experience', html: 'experience' },
+        { href: '/contact', html: 'contact' }
+      ]
     });
   });
 
@@ -42,9 +44,14 @@ var routes = function routes(app) {
     res.end(JSON.stringify({
       resource: resource,
       actions: {
-        view: req.headers.origin + '/sessions/view/' + resource.id
+        view: req.headers.origin + '/sessions/' + resource.id
       }
     }));
+  });
+
+  app.get('/sessions/:id', function(req, res) {
+    render(res, __dirname + '/views/sessions/index/index.html', {
+    });
   });
 };
 

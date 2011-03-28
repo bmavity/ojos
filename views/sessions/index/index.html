@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Session</title>
+  
+  <style>
+    #peekaboo {
+      float:left;
+      height:300px;
+      width:300px;
+    }
+      #peekaboo:after {
+        clear:left;
+      }
+    #info {
+      margin-left:325px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Session Name</h1>
+  <div>
+    <div id="peekaboo">
+      <div id="content">
+      </div>
+      <form action="/sessions/join/#{id}" method="post">
+        <input type="submit" value="Join Session">
+      </form>
+    </div>
+    <div id="info">
+      <h2>by Anonymous</h2>
+      <p class="time">at 12:32 PM</p>
+      <p class="browser">Chrome 10.0</p>
+      <p class="dimensions">1024 x 768</p>
+    </div>
+  </div>
+</body>
+</html>
