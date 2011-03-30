@@ -42,6 +42,13 @@ var routes = function routes(app) {
 
   app.get('/sessions/:id', function(req, res) {
     render(res, __dirname + '/views/sessions/index/index.html', {
+      sessionName: 'Session ' + req.params.id,
+      info: {
+        author: 'by Anonymous',
+        browser: 'FireFox 4.0',
+        dimensions: '1600 x 1200',
+        time: 'at 5:00 PM'
+      }
     });
   });
 };
