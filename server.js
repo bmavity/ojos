@@ -1,7 +1,6 @@
 var connect = require('connect'),
     io = require('socket.io'),
-    jsdom = require('jsdom'),
-    caruso = require('caruso'),
+    injector = require('caruso').injector,
     sessionTracker = require('./sessionTracker'),
     resources = {
       sessions: require('./resources/sessions')
@@ -10,18 +9,10 @@ var connect = require('connect'),
     socketServer;
 
 var render = function(res, fileName, data) {
-  jsdom.env(fileName, [
-    'http://code.jquery.com/jquery-1.5.min.js',
-    caruso.pathTo('text'),
-    caruso.pathTo('injector')
-  ], function(errors, window) {
-    var $ = window.$,
-        $document = $(window.document);
-    //$document.inject(data);
-    console.log(window.document.innerHTML);
-    $('script:not(body script)').remove();
+  injector.env(fileName, function(err, env) {
+    env.inject(data);
     res.writeHead(200, { 'Content-Type': 'text/html' });
-    res.end(window.document.innerHTML);
+    res.end(env.render());
   });
 };
 
