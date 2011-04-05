@@ -6,6 +6,7 @@ var connect = require('connect'),
       sessions: require('./resources/sessions')
     },
     views = require('./viewModels'),
+    userAgent = require('useragent'),
     server,
     socketServer;
 
@@ -31,7 +32,7 @@ var routes = function routes(app) {
   });
 
   app.post('/sessions/start', function(req, res) {
-    var resource = resources.sessions.start();
+    var resource = resources.sessions.start(userAgent.parser(req.headers['user-agent']));
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       resource: resource,

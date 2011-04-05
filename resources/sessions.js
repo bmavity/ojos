@@ -7,9 +7,11 @@ bus.ready({ transport: 'amqp', host: 'localhost', queueName: 'sessionStarted' },
   console.log('bus is ready');
 });
 
-var start = function sessionsStart() {
+var start = function sessionsStart(agent) {
   var session = {
-    id: uuid()
+    id: uuid(),
+    browser: agent.pretty(),
+    time: new Date()
   };
   bus.publish('sessionStarted', session);
   sessions[session.id] = session;
