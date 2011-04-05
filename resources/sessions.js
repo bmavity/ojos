@@ -11,6 +11,7 @@ var start = function sessionsStart(agent) {
   var session = {
     id: uuid(),
     browser: agent.pretty(),
+    os: agent.prettyOs(),
     time: new Date()
   };
   bus.publish('sessionStarted', session);

@@ -8,7 +8,8 @@ bus.ready({ transport: 'amqp', host: 'localhost', queueName: 'sessionStarted' },
       sessionName: 'Session name ' + session.id,
       info: {
         time: session.time.toString(),
-        browser: session.browser
+        browser: session.browser,
+        os: session.os
       }
     };
   });
