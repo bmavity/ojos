@@ -61,26 +61,9 @@ socketServer.on('connection', function(client) {
 
   client.send(id);
 
-  sessionTracker.createSession(id);
-
   client.on('message', function(command) {
-    var startTime,
-        commands;
-    if(command.csa) {
-      commands = sessionTracker.displaySession(command.data);
-      startTime = commands[0].time;
-      commands.forEach(function(command) {
-        setTimeout(function() {
-          client.send(command.command);
-        }, command.time - startTime);
-      });
-    } else {
-      sessionTracker.handle(id, command);
-      if(command.command === 'startSession') {
-        command.data = id;
-        client.broadcast(command);
-      }
-      //client.broadcast(command);
+    if(command.command === 'setScreenSize') {
+      resources.sessions[command.command](command.data.id, command.data);
     }
   });
 });

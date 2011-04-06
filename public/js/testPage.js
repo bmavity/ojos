@@ -9,13 +9,9 @@
     console.log(m);
   });
 
-  var init = function() {
+  var init = function(id) {
     socket.connect();
-    startSession();
-    setScreenSize();
-    setContent();
-    setScrollPosition();
-    setCursorPosition(0, 0);
+    setScreenSize(id);
   };
 
   var setContent = function setContent() {
@@ -46,10 +42,11 @@
     });
   };
 
-  var setScreenSize = function setScreenSize() {
+  var setScreenSize = function setScreenSize(id) {
     submitCommand({
       command: 'setScreenSize',
       data: {
+        id: id,
         height: $window.height(),
         width: $window.width()
       }
@@ -95,11 +92,13 @@
     };
   };
 
+/*
   $window.scroll(limit(setScrollPosition));
   $window.resize(limit(setScreenSize));
   $document.mousemove(limit(function(evt) {
     setCursorPosition(evt.pageX, evt.pageY);
   }));
+*/
 
   var $startSession = $('#startSession');
   $startSession.submit(function(evt) {
@@ -112,7 +111,7 @@
           $actions.find('#' + key).val(actions[key]);
           $startSession.append($('<a></a>').attr('href', actions[key]).html('Join'));
         });
-        init();
+        init(data.resource.id);
       }
     });
     evt.preventDefault();

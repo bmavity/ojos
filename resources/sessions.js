@@ -7,6 +7,14 @@ bus.ready({ transport: 'amqp', host: 'localhost', queueName: 'sessionStarted' },
   console.log('bus is ready');
 });
 
+var setScreenSize = function sessionsSetScreenSize(id, dimensions) {
+  bus.publish('sessionScreenSizeSet', {
+    id: id,
+    height: dimensions.height,
+    width: dimensions.width
+  });
+};
+
 var start = function sessionsStart(agent) {
   var session = {
     id: uuid(),
@@ -20,4 +28,5 @@ var start = function sessionsStart(agent) {
 };
 
 
+exports.setScreenSize = setScreenSize;
 exports.start = start;

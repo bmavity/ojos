@@ -3,7 +3,6 @@ var bus = require('masstransit').create(),
 
 bus.ready({ transport: 'amqp', host: 'localhost', queueName: 'sessionStarted' }, function() {
   bus.subscribe('sessionStarted', function(session) {
-  console.log(session.time);
     viewModels['index'][session.id] = {
       sessionName: 'Session name ' + session.id,
       info: {
@@ -12,6 +11,10 @@ bus.ready({ transport: 'amqp', host: 'localhost', queueName: 'sessionStarted' },
         os: session.os
       }
     };
+  });
+  
+  bus.subscribe('sessionScreenSizeSet', function(screenSizeSet) {
+    viewModels['index'][screenSizeSet.id].dimensions = screenSizeSet.width + ' x ' + screenSizeSet.height;
   });
 });
 
