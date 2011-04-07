@@ -42,6 +42,11 @@ var routes = function routes(app) {
     }));
   });
 
+  app.post('/sessions/join/:id', function(req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end(req.params.id);
+  });
+
   app.get('/sessions/:id', function(req, res) {
     views.index(req.params.id, function(data) {
       render(res, __dirname + '/views/sessions/index/index.html', data);

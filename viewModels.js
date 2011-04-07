@@ -3,8 +3,12 @@ var bus = require('masstransit').create(),
 
 bus.ready({ transport: 'amqp', host: 'localhost', queueName: 'sessionStarted' }, function() {
   bus.subscribe('sessionStarted', function(session) {
-    viewModels['index'][session.id] = {
-      sessionName: 'Session name ' + session.id,
+    var id = session.id;
+    viewModels['index'][id] = {
+      sessionName: 'Session name ' + id,
+      sessionJoin: {
+        action: '/sessions/join/' + id
+      },
       info: {
         time: session.time.toString(),
         browser: session.browser,
