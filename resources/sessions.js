@@ -7,6 +7,23 @@ bus.ready({ transport: 'amqp', host: 'localhost', queueName: 'sessionStarted' },
   console.log('bus is ready');
 });
 
+var join = function sessionsJoin(id, channelId) {
+  sessions[id].clients.push(channelId);
+  bus.publish('sessionJoined', {
+    id: id,
+    clientChannelId: channelId
+  });
+};
+
+var readySession = function sessionsReadySession(id, channelId) {
+  sessions[id].channelId = channelId;
+  sessions[id].clients = [];
+  bus.publish('sessionReady', {
+    id: id,
+    channelId: channelId
+  });
+};
+
 var setScreenSize = function sessionsSetScreenSize(id, dimensions) {
   bus.publish('sessionScreenSizeSet', {
     id: id,
@@ -28,5 +45,7 @@ var start = function sessionsStart(agent) {
 };
 
 
+exports.join = join;
+exports.readySession = readySession;
 exports.setScreenSize = setScreenSize;
 exports.start = start;

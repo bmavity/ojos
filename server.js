@@ -47,11 +47,6 @@ var routes = function routes(app) {
     });
   });
 
-  app.post('/sessions/join/:id', function(req, res) {
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end(req.params.id);
-  });
-
   app.get('/sessions/:id', function(req, res) {
     views.index(req.params.id, function(data) {
       render(res, __dirname + '/views/sessions/index/index.html', data);
@@ -67,13 +62,20 @@ server = connect(
 socketServer = io.listen(server);
 
 socketServer.on('connection', function(client) {
-  var id = client.sessionId;
+  var channelId = client.sessionId;
 
-  client.send(id);
+  client.send(channelId);
 
   client.on('message', function(command) {
-    if(command.command === 'setScreenSize') {
+    var issuedCommand = command.command;
+    console.log(command);
+    if(issuedCommand === 'setScreenSize') {
       resources.sessions[command.command](command.data.id, command.data);
+    } else if(issuedCommand === 'readySession') {
+      resources.sessions[command.command](command.data.sessionId, channelId);
+    } else if(issuedCommand.indexOf('/sessions/join/') !== -1) {
+      var id = issuedCommand.replace(/^\/sessions\/join\//g, '');
+      resources.sessions['join'](id, channelId);
     }
   });
 });

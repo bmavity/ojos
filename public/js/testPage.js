@@ -11,7 +11,17 @@
 
   var init = function(id) {
     socket.connect();
+    readySession(id);
     setScreenSize(id);
+  };
+
+  var readySession = function(sessionId) {
+    submitCommand({
+      command: 'readySession',
+      data: {
+        sessionId: sessionId
+      }
+    });
   };
 
   var setContent = function setContent() {
