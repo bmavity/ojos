@@ -11,6 +11,7 @@ var join = function sessionsJoin(id, channelId) {
   sessions[id].clients.push(channelId);
   bus.publish('sessionJoined', {
     id: id,
+    channelId: sessions[id].channelId,
     clientChannelId: channelId
   });
 };

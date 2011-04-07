@@ -7,8 +7,17 @@ var connect = require('connect'),
     },
     views = require('./viewModels'),
     userAgent = require('useragent'),
+    bus = require('masstransit').create(),
     server,
     socketServer;
+
+bus.ready({ transport: 'amqp', host: 'localhost', queueName: 'sessionStarted' }, function() {
+  console.log('bus is ready');
+  
+  bus.subscribe('sessionJoined', function(message) {
+    socketServer.clients[message.channelId].send(message.clientChannelId);
+  });
+});
 
 var render = function(res, fileName, data) {
   injector.env(fileName, function(err, env) {
@@ -63,8 +72,6 @@ socketServer = io.listen(server);
 
 socketServer.on('connection', function(client) {
   var channelId = client.sessionId;
-
-  client.send(channelId);
 
   client.on('message', function(command) {
     var issuedCommand = command.command;
