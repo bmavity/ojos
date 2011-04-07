@@ -18,6 +18,11 @@ var render = function(res, fileName, data) {
   });
 };
 
+var renderJson = function(res, data) {
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify(data));
+};
+
 var routes = function routes(app) {
   app.get('/', function(req, res) {
     render(res, __dirname + '/views/index.html', {
@@ -32,14 +37,14 @@ var routes = function routes(app) {
   });
 
   app.post('/sessions/start', function(req, res) {
-    var resource = resources.sessions.start(userAgent.parser(req.headers['user-agent']));
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({
+    var parsedUserAgent = userAgent.parser(req.headers['user-agent']),
+        resource = resources.sessions.start(parsedUserAgent);
+    renderJson(res, {
       resource: resource,
       actions: {
         view: req.headers.origin + '/sessions/' + resource.id
       }
-    }));
+    });
   });
 
   app.post('/sessions/join/:id', function(req, res) {
