@@ -18,7 +18,19 @@ bus.ready({ transport: 'amqp', host: 'localhost', queueName: 'sessionStarted' },
   });
   
   bus.subscribe('sessionScreenSizeSet', function(screenSizeSet) {
-    viewModels['index'][screenSizeSet.id].dimensions = screenSizeSet.width + ' x ' + screenSizeSet.height;
+    var id = screenSizeSet.id,
+        index = viewModels['index'][id],
+        imgSrc = '/img/sessions/' + id + '.png';
+    index.dimensions = screenSizeSet.width + ' x ' + screenSizeSet.height;
+    require('./screenshotFactory').createScreenshot({
+      url: 'http://localhost:8000/',
+      height: screenSizeSet.height,
+      width: screenSizeSet.width,
+      outputFile: __dirname + '/public' + imgSrc
+    });
+    index.sessionImage = {
+      src: imgSrc
+    };
   });
 });
 
@@ -27,6 +39,7 @@ var index = function(id, callback) {
 };
 
 viewModels['index'] = {};
+
 
 exports.index = index;
 
