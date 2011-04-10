@@ -38,26 +38,6 @@
   </div>
   <script src="/js/jquery.min.js"></script>
   <script src="/socket.io/socket.io.js"></script> 
-  <script>
-    (function($) {
-      (function ($sessionJoin) {
-        var socket = new io.Socket('localhost', {
-          port: 8000
-        });
-        
-        socket.on('message', function(message) {
-          console.log(message);
-        });
-
-        $sessionJoin.submit(function(evt) {
-          socket.connect();
-          socket.send({
-            command: $sessionJoin.attr('action')
-          });
-          evt.preventDefault();
-        });
-      })($('#sessionJoin'));
-    })(jQuery);
-  </script>
+  <script src="/js/portal.js"></script>
 </body>
 </html>

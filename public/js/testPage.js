@@ -12,6 +12,7 @@
   var init = function(id) {
     socket.connect();
     readySession(id);
+    setContent(id);
     setScreenSize(id);
   };
 
@@ -24,7 +25,7 @@
     });
   };
 
-  var setContent = function setContent() {
+  var setContent = function setContent(sessionId) {
     var $fakeBody = $('body').clone();
     $fakeBody.find('script').remove();
     var stylesheets = $.makeArray(document.styleSheets).map(function(ss) {
@@ -36,6 +37,7 @@
     submitCommand({
       command: 'setContent',
       data: {
+        sessionId: sessionId,
         content: $fakeBody.html(),
         styles: stylesheets
       }

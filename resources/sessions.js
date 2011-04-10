@@ -25,6 +25,12 @@ var readySession = function sessionsReadySession(id, channelId) {
   });
 };
 
+var setContent = function sessionsSetContent(id, content) {
+  sessions[id].content = content.content;
+  sessions[id].stylesheets = content.stylesheets;
+  bus.publish('sessionContentSet', content);
+};
+
 var setScreenSize = function sessionsSetScreenSize(id, dimensions) {
   bus.publish('sessionScreenSizeSet', {
     id: id,
@@ -48,5 +54,6 @@ var start = function sessionsStart(agent) {
 
 exports.join = join;
 exports.readySession = readySession;
+exports.setContent = setContent;
 exports.setScreenSize = setScreenSize;
 exports.start = start;

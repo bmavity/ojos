@@ -12,10 +12,16 @@ var connect = require('connect'),
     socketServer;
 
 bus.ready({ transport: 'amqp', host: 'localhost', queueName: 'sessionStarted' }, function() {
-  console.log('bus is ready');
+  console.log('bus is ready server.js');
   
   bus.subscribe('sessionJoined', function(message) {
-    socketServer.clients[message.channelId].send(message.clientChannelId);
+  console.log('wtf?');
+    socketServer.clients[message.channelId].send({
+      evt: 'sessionJoined'
+    });
+    socketServer.clients[message.clientChannelId].send({
+      evt: 'sessionJoined'
+    })
   });
 });
 
@@ -78,6 +84,8 @@ socketServer.on('connection', function(client) {
     console.log(command);
     if(issuedCommand === 'setScreenSize') {
       resources.sessions[command.command](command.data.id, command.data);
+    } else if(issuedCommand === 'setContent') {
+      resources.sessions[command.command](command.data.sessionId, command.data);
     } else if(issuedCommand === 'readySession') {
       resources.sessions[command.command](command.data.sessionId, channelId);
     } else if(issuedCommand.indexOf('/sessions/join/') !== -1) {
