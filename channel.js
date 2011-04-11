@@ -1,17 +1,34 @@
 var bus = require('masstransit').create(),
+    sessions = {},
     socketServer;
 
+var getChannel = function channelGetChannel(channelId) {
+  return socketServer.clients[channelId];
+};
+
+var sendAll = function channelSendAll(sessionId, message) {
+  var session = sessions[sessionId];
+  getChannel(session.hostId).send(message);
+  session.viewerIds.forEach(function(viewerId) {
+    getChannel(viewerId).send(message);
+  });
+};
+
 bus.ready({ transport: 'amqp', host: 'localhost', queueName: 'sessionStarted' }, function() {
-  console.log('bus is ready server.js');
+  console.log('bus is ready channel.js');
   
   bus.subscribe('sessionJoined', function(message) {
-  console.log('wtf?');
-    socketServer.clients[message.channelId].send({
+    var sessionId = message.id,
+        session;
+    sessions[sessionId] = sessions[sessionId] || {
+      viewerIds: []
+    };
+    session = sessions[sessionId];
+    session.hostId = message.channelId;
+    session.viewerIds.push(message.clientChannelId);
+    sendAll(sessionId, {
       evt: 'sessionJoined'
     });
-    socketServer.clients[message.clientChannelId].send({
-      evt: 'sessionJoined'
-    })
   });
 
   bus.subscribe('sessionContentSet', function(message) {
