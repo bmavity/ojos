@@ -7,23 +7,9 @@ var connect = require('connect'),
     },
     views = require('./viewModels'),
     userAgent = require('useragent'),
-    bus = require('masstransit').create(),
     server,
+    channel = require('./channel'),
     socketServer;
-
-bus.ready({ transport: 'amqp', host: 'localhost', queueName: 'sessionStarted' }, function() {
-  console.log('bus is ready server.js');
-  
-  bus.subscribe('sessionJoined', function(message) {
-  console.log('wtf?');
-    socketServer.clients[message.channelId].send({
-      evt: 'sessionJoined'
-    });
-    socketServer.clients[message.clientChannelId].send({
-      evt: 'sessionJoined'
-    })
-  });
-});
 
 var render = function(res, fileName, data) {
   injector.env(fileName, function(err, env) {
@@ -75,6 +61,8 @@ server = connect(
   connect.router(routes)
 );
 socketServer = io.listen(server);
+
+channel.init(socketServer);
 
 socketServer.on('connection', function(client) {
   var channelId = client.sessionId;
