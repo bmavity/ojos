@@ -6,28 +6,32 @@
         handlers = {},
         sessionId,
         $portal = $('<iframe id="peekaboo"></iframe>');
-   /* 
+    
     handlers['sessionContentSet'] = function(viewData) {
-      /*
       viewData.styles.push('/css/cursor.css');
       viewData.styles.forEach(function(ss) {
         if(ss.forEach !== undefined) {
-          var css = view.contents()[0].createElement('style');
+          var css = $portal.contents()[0].createElement('style');
           ss.forEach(function(s) {
             css.innerHTML += s;
           });
         } else {
-          var css = view.contents()[0].createElement('link');
+          var css = $portal.contents()[0].createElement('link');
           css.setAttribute('rel', 'stylesheet');
           css.setAttribute('href', ss);
         }
-        view.contents()[0].getElementsByTagName('head')[0].appendChild(css);
+        $portal.contents()[0].getElementsByTagName('head')[0].appendChild(css);
       });
-      view.contents().find('body').html(viewData.content).append('<div class="mouse"></div>');
+      $portal.contents().find('body').html(viewData.content).append('<div class="mouse"></div>');
     };
-*/
+
     handlers['sessionJoined'] = function() {
+      //var $contents = $portal.contents();
+      //console.log($contents);
+      $portal[0].innerHtml = '<html lang="en"><head></head><body></body></html>';
+      console.log($portal.html());
       $peekaboo.replaceWith($portal);
+
     };
 
     socket.on('message', function(message) {
@@ -48,6 +52,7 @@
   })($('#sessionJoin'), $('#peekaboo'));
 })(jQuery);
 
+/*
 (function($) {
   var view = $('iframe'),
       socket = new io.Socket('localhost'),
@@ -110,4 +115,4 @@
     });
   });
 })(jQuery);
-
+*/
