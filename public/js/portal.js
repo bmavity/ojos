@@ -26,12 +26,12 @@
     };
 
     handlers['sessionJoined'] = function() {
-      //var $contents = $portal.contents();
-      //console.log($contents);
-      $portal[0].innerHtml = '<html lang="en"><head></head><body></body></html>';
-      console.log($portal.html());
       $peekaboo.replaceWith($portal);
+    };
 
+    handlers['sessionScreenSizeSet'] = function(dimensions) {
+      $portal.height(dimensions.height + 16);
+      $portal.width(dimensions.width + 16);
     };
 
     socket.on('message', function(message) {

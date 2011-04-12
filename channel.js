@@ -2,6 +2,7 @@ var bus = require('masstransit').create(),
     sessions = {},
     socketServer,
     content = {},
+    dimensions = {},
     styles = {};
 
 var getChannel = function channelGetChannel(channelId) {
@@ -45,20 +46,25 @@ bus.ready({ transport: 'amqp', host: 'localhost', queueName: 'sessionStarted' },
         }
       });
     }
+    if(dimensions[sessionId]) {
+      sendViewers(sessionId, {
+        evt: 'sessionScreenSizeSet',
+        data: dimensions[sessionId]
+      });
+    }
   });
 
   bus.subscribe('sessionContentSet', function(message) {
     var sessionId = message.sessionId;
     content[sessionId] = message.content;
     styles[sessionId] = message.styles;
-    /*
-    sendViewers(sessionId, {
-      evt: 'sessionContentSet',
-      data: {
-        content: message.content
-      }
-    });
-    */
+  });
+
+  bus.subscribe('sessionScreenSizeSet', function(message) {
+    dimensions[message.id] = {
+      height: message.height,
+      width: message.width
+    };
   });
 });
 
