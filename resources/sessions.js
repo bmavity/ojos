@@ -35,6 +35,14 @@ var setScreenSize = function sessionsSetScreenSize(id, dimensions) {
   });
 };
 
+var setScrollPosition = function sessionsSetScrollPosition(id, position) {
+  bus.publish('sessionScrollPositionSet', {
+    id: id,
+    left: position.left,
+    top: position.top
+  });
+};
+
 var start = function sessionsStart(agent) {
   var session = {
     id: uuid(),
@@ -52,4 +60,5 @@ exports.join = join;
 exports.readySession = readySession;
 exports.setContent = setContent;
 exports.setScreenSize = setScreenSize;
+exports.setScrollPosition = setScrollPosition;
 exports.start = start;

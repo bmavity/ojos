@@ -14,6 +14,7 @@
     readySession(id);
     setContent(id);
     setScreenSize(id);
+    setScrollPosition(id);
   };
 
   var readySession = function(sessionId) {
@@ -65,12 +66,13 @@
     });
   };
 
-  var setScrollPosition = function setScrollPosition() {
+  var setScrollPosition = function setScrollPosition(id) {
     submitCommand({
       command: 'setScrollPosition',
       data: {
-        scrollLeft: $window.scrollLeft(),
-        scrollTop: $window.scrollTop()
+        sessionId: id,
+        left: $window.scrollLeft(),
+        top: $window.scrollTop()
       }
     });
   };

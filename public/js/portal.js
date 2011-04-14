@@ -5,7 +5,8 @@
         }),
         handlers = {},
         sessionId,
-        $portal = $('<iframe id="peekaboo"></iframe>');
+        $portal = $('<iframe id="peekaboo"></iframe>'),
+        $contentWindow = $($portal[0].contentWindow);
     
     handlers['sessionContentSet'] = function(viewData) {
       viewData.styles.push('/css/cursor.css');
@@ -32,6 +33,13 @@
     handlers['sessionScreenSizeSet'] = function(dimensions) {
       $portal.height(dimensions.height + 16);
       $portal.width(dimensions.width + 16);
+    };
+
+    handlers['sessionScrollPositionSet'] = function(scrollPosition) {
+      $contentWindow = $($portal[0].contentWindow);
+        console.log(scrollPosition);
+      $contentWindow.scrollTop(scrollPosition.top);
+      $contentWindow.scrollLeft(scrollPosition.left);
     };
 
     socket.on('message', function(message) {

@@ -1,12 +1,14 @@
 var bus = require('masstransit').create(),
     sessions = {},
-    socketServer,
-    content = {},
-    dimensions = {},
-    styles = {};
+    socketServer;
 
 var getChannel = function channelGetChannel(channelId) {
   return socketServer.clients[channelId];
+};
+
+var getSession = function channelGetSession(sessionId) {
+  sessions[sessionId] = sessions[sessionId] || { viewerIds: [] };
+  return sessions[sessionId];
 };
 
 var sendAll = function channelSendAll(sessionId, message) {
@@ -24,43 +26,50 @@ var sendViewers = function channelSendViewers(sessionId, message) {
 
 bus.subscribe('sessionJoined', function(message) {
   var sessionId = message.id,
-      session;
-  sessions[sessionId] = sessions[sessionId] || {
-    viewerIds: []
-  };
-  session = sessions[sessionId];
+      session = getSession(sessionId);
+  
   session.hostId = message.channelId;
   session.viewerIds.push(message.clientChannelId);
   sendAll(sessionId, {
     evt: 'sessionJoined'
   });
-  if(content[sessionId]) {
-    sendViewers(sessionId, {
-      evt: 'sessionContentSet',
-      data: {
-        content: content[sessionId],
-        styles: styles[sessionId]
-      }
-    });
-  }
-  if(dimensions[sessionId]) {
-    sendViewers(sessionId, {
-      evt: 'sessionScreenSizeSet',
-      data: dimensions[sessionId]
-    });
-  }
+
+  sendViewers(sessionId, {
+    evt: 'sessionContentSet',
+    data: {
+      content: session.content,
+      styles: session.styles
+    }
+  });
+  
+  sendViewers(sessionId, {
+    evt: 'sessionScreenSizeSet',
+    data: session.dimensions
+  });
+
+  sendViewers(sessionId, {
+    evt: 'sessionScrollPositionSet',
+    data: session.scrollPosition
+  });
 });
 
 bus.subscribe('sessionContentSet', function(message) {
-  var sessionId = message.sessionId;
-  content[sessionId] = message.content;
-  styles[sessionId] = message.styles;
+  var session = getSession(message.sessionId);
+  session.content = message.content;
+  session.styles = message.styles;
 });
 
 bus.subscribe('sessionScreenSizeSet', function(message) {
-  dimensions[message.id] = {
+  getSession(message.id).dimensions = {
     height: message.height,
     width: message.width
+  };
+});
+
+bus.subscribe('sessionScrollPositionSet', function(message) {
+  getSession(message.id).scrollPosition = {
+    left: message.left,
+    top: message.top
   };
 });
 
