@@ -1,37 +1,35 @@
 var bus = require('masstransit').create(),
     viewModels = {};
 
-bus.ready({ transport: 'amqp', host: 'localhost', queueName: 'sessionStarted' }, function() {
-  bus.subscribe('sessionStarted', function(session) {
-    var id = session.id;
-    viewModels['index'][id] = {
-      sessionName: 'Session name ' + id,
-      sessionJoin: {
-        action: '/sessions/join/' + id
-      },
-      info: {
-        time: session.time.toString(),
-        browser: session.browser,
-        os: session.os
-      }
-    };
+bus.subscribe('sessionStarted', function(session) {
+  var id = session.id;
+  viewModels['index'][id] = {
+    sessionName: 'Session name ' + id,
+    sessionJoin: {
+      action: '/sessions/join/' + id
+    },
+    info: {
+      time: session.time.toString(),
+      browser: session.browser,
+      os: session.os
+    }
+  };
+});
+
+bus.subscribe('sessionScreenSizeSet', function(screenSizeSet) {
+  var id = screenSizeSet.id,
+      index = viewModels['index'][id],
+      imgSrc = '/img/sessions/' + id + '.png';
+  index.dimensions = screenSizeSet.width + ' x ' + screenSizeSet.height;
+  require('./screenshotFactory').createScreenshot({
+    url: 'http://localhost:8000/',
+    height: screenSizeSet.height,
+    width: screenSizeSet.width,
+    outputFile: __dirname + '/public' + imgSrc
   });
-  
-  bus.subscribe('sessionScreenSizeSet', function(screenSizeSet) {
-    var id = screenSizeSet.id,
-        index = viewModels['index'][id],
-        imgSrc = '/img/sessions/' + id + '.png';
-    index.dimensions = screenSizeSet.width + ' x ' + screenSizeSet.height;
-    require('./screenshotFactory').createScreenshot({
-      url: 'http://localhost:8000/',
-      height: screenSizeSet.height,
-      width: screenSizeSet.width,
-      outputFile: __dirname + '/public' + imgSrc
-    });
-    index.sessionImage = {
-      src: imgSrc
-    };
-  });
+  index.sessionImage = {
+    src: imgSrc
+  };
 });
 
 var index = function(id, callback) {

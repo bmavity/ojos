@@ -1,7 +1,15 @@
 var connect = require('connect'),
     io = require('socket.io'),
     injector = require('caruso').injector,
-    sessionTracker = require('./sessionTracker'),
+    bus = require('masstransit').create();
+  
+bus.init({
+  transport: 'amqp',
+  host: 'localhost',
+  queueName: 'sessionStarted'
+});
+
+var sessionTracker = require('./sessionTracker'),
     resources = {
       sessions: require('./resources/sessions')
     },
@@ -10,6 +18,8 @@ var connect = require('connect'),
     server,
     channel = require('./channel'),
     socketServer;
+
+ 
 
 var render = function(res, fileName, data) {
   injector.env(fileName, function(err, env) {

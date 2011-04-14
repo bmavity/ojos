@@ -3,10 +3,6 @@ var uuid = require('node-uuid'),
     bus = require('masstransit').create(),
     sessions = {};
 
-bus.ready({ transport: 'amqp', host: 'localhost', queueName: 'sessionStarted' }, function() {
-  console.log('bus is ready');
-});
-
 var join = function sessionsJoin(id, channelId) {
   sessions[id].clients.push(channelId);
   bus.publish('sessionJoined', {

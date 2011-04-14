@@ -22,50 +22,46 @@ var sendViewers = function channelSendViewers(sessionId, message) {
   });
 };
 
-bus.ready({ transport: 'amqp', host: 'localhost', queueName: 'sessionStarted' }, function() {
-  console.log('bus is ready channel.js');
-  
-  bus.subscribe('sessionJoined', function(message) {
-    var sessionId = message.id,
-        session;
-    sessions[sessionId] = sessions[sessionId] || {
-      viewerIds: []
-    };
-    session = sessions[sessionId];
-    session.hostId = message.channelId;
-    session.viewerIds.push(message.clientChannelId);
-    sendAll(sessionId, {
-      evt: 'sessionJoined'
+bus.subscribe('sessionJoined', function(message) {
+  var sessionId = message.id,
+      session;
+  sessions[sessionId] = sessions[sessionId] || {
+    viewerIds: []
+  };
+  session = sessions[sessionId];
+  session.hostId = message.channelId;
+  session.viewerIds.push(message.clientChannelId);
+  sendAll(sessionId, {
+    evt: 'sessionJoined'
+  });
+  if(content[sessionId]) {
+    sendViewers(sessionId, {
+      evt: 'sessionContentSet',
+      data: {
+        content: content[sessionId],
+        styles: styles[sessionId]
+      }
     });
-    if(content[sessionId]) {
-      sendViewers(sessionId, {
-        evt: 'sessionContentSet',
-        data: {
-          content: content[sessionId],
-          styles: styles[sessionId]
-        }
-      });
-    }
-    if(dimensions[sessionId]) {
-      sendViewers(sessionId, {
-        evt: 'sessionScreenSizeSet',
-        data: dimensions[sessionId]
-      });
-    }
-  });
+  }
+  if(dimensions[sessionId]) {
+    sendViewers(sessionId, {
+      evt: 'sessionScreenSizeSet',
+      data: dimensions[sessionId]
+    });
+  }
+});
 
-  bus.subscribe('sessionContentSet', function(message) {
-    var sessionId = message.sessionId;
-    content[sessionId] = message.content;
-    styles[sessionId] = message.styles;
-  });
+bus.subscribe('sessionContentSet', function(message) {
+  var sessionId = message.sessionId;
+  content[sessionId] = message.content;
+  styles[sessionId] = message.styles;
+});
 
-  bus.subscribe('sessionScreenSizeSet', function(message) {
-    dimensions[message.id] = {
-      height: message.height,
-      width: message.width
-    };
-  });
+bus.subscribe('sessionScreenSizeSet', function(message) {
+  dimensions[message.id] = {
+    height: message.height,
+    width: message.width
+  };
 });
 
 
