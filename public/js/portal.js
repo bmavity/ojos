@@ -37,7 +37,6 @@
 
     handlers['sessionScrollPositionSet'] = function(scrollPosition) {
       $contentWindow = $($portal[0].contentWindow);
-        console.log(scrollPosition);
       $contentWindow.scrollTop(scrollPosition.top);
       $contentWindow.scrollLeft(scrollPosition.left);
     };
