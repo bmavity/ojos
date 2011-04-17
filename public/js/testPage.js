@@ -15,6 +15,7 @@
     setContent(id);
     setScreenSize(id);
     setScrollPosition(id);
+    setCursorPosition(id, position.x, position.y);
   };
 
   var readySession = function(sessionId) {
@@ -45,10 +46,11 @@
     });
   };
 
-  var setCursorPosition = function setCursorPosition(x, y) {
+  var setCursorPosition = function setCursorPosition(sessionId, x, y) {
     submitCommand({
       command: 'setCursorPosition',
       data: {
+        sessionId: sessionId,
         x: x,
         y: y
       }
@@ -96,7 +98,7 @@
         canReport = false;
         callback.apply({}, arguments);
         setTimeout(function() {
-          canReport = true;
+          //canReport = true;
           if(lastArgs) {
             callback.apply({}, lastArgs);
             lastArgs = null;
@@ -109,10 +111,11 @@
 /*
   $window.scroll(limit(setScrollPosition));
   $window.resize(limit(setScreenSize));
-  $document.mousemove(limit(function(evt) {
-    setCursorPosition(evt.pageX, evt.pageY);
-  }));
 */
+  var position;
+  $document.mousemove(limit(function(evt) {
+    position = { x: evt.pageX, y: evt.pageY };
+  }));
 
   var $startSession = $('#startSession');
   $startSession.submit(function(evt) {

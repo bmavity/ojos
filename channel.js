@@ -51,12 +51,25 @@ bus.subscribe('sessionJoined', function(message) {
     evt: 'sessionScrollPositionSet',
     data: session.scrollPosition
   });
+
+  sendViewers(sessionId, {
+    evt: 'sessionCursorPositionSet',
+    data: session.cursorPosition
+  });
 });
 
 bus.subscribe('sessionContentSet', function(message) {
   var session = getSession(message.sessionId);
   session.content = message.content;
   session.styles = message.styles;
+});
+
+bus.subscribe('sessionCursorPositionSet', function(message) {
+console.log(message);
+  getSession(message.id).cursorPosition = {
+    x: message.x,
+    y: message.y
+  };
 });
 
 bus.subscribe('sessionScreenSizeSet', function(message) {

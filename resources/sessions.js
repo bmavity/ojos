@@ -27,6 +27,14 @@ var setContent = function sessionsSetContent(id, content) {
   bus.publish('sessionContentSet', content);
 };
 
+var setCursorPosition = function sessionsCursorPositionSet(id, position) {
+  bus.publish('sessionCursorPositionSet', {
+    id: id,
+    x: position.x,
+    y: position.y
+  });
+};
+
 var setScreenSize = function sessionsSetScreenSize(id, dimensions) {
   bus.publish('sessionScreenSizeSet', {
     id: id,
@@ -59,6 +67,7 @@ var start = function sessionsStart(agent) {
 exports.join = join;
 exports.readySession = readySession;
 exports.setContent = setContent;
+exports.setCursorPosition = setCursorPosition;
 exports.setScreenSize = setScreenSize;
 exports.setScrollPosition = setScrollPosition;
 exports.start = start;

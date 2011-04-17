@@ -26,6 +26,13 @@
       $portal.contents().find('body').html(viewData.content).append('<div class="mouse"></div>');
     };
 
+    handlers['sessionCursorPositionSet'] = function(mouseData) {
+      $portal.contents().find('.mouse').css({
+        left: mouseData.x + 'px',
+        top: mouseData.y + 'px'
+      });
+    };
+
     handlers['sessionJoined'] = function() {
       $peekaboo.replaceWith($portal);
     };

@@ -84,6 +84,8 @@ socketServer.on('connection', function(client) {
       resources.sessions[command.command](command.data.id, command.data);
     } else if(issuedCommand === 'setContent') {
       resources.sessions[command.command](command.data.sessionId, command.data);
+    } else if(issuedCommand === 'setCursorPosition') {
+      resources.sessions[command.command](command.data.sessionId, command.data);
     } else if(issuedCommand === 'setScrollPosition') {
       resources.sessions[command.command](command.data.sessionId, command.data);
     } else if(issuedCommand === 'readySession') {
