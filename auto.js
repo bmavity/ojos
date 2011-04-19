@@ -5,8 +5,8 @@ var fs = require('fs')
 var findSomethings = function autoFindSomethings(rType) {
   Object.keys(resources).forEach(function(resourceName) {
     var resource = resources[resourceName];
-    forEachDirectory(resource.path + rType + '/', function(dirname) {
-      resource[rType][dirname] = {
+    forEachDirectory(resource.path, function(dirname) {
+      resource.views[dirname] = {
         path: resource.path + '/' + dirname
       };
     });
@@ -39,7 +39,3 @@ var isDirectory = function(dirname) {
 
 findResources();
 findSomethings('views');
-findSomethings('actions');
-
-
-
