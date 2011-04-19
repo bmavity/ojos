@@ -40,4 +40,6 @@ var isDirectory = function(dirname) {
 findResources();
 findSomethings('views');
 findSomethings('actions');
-console.log(resources);
+
+
+
