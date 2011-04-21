@@ -25,7 +25,7 @@ bus.subscribe('sessionScreenSizeSet', function(screenSizeSet) {
     url: 'http://localhost:8000/',
     height: screenSizeSet.height,
     width: screenSizeSet.width,
-    outputFile: __dirname + '/public' + imgSrc
+    outputFile: 'public' + imgSrc
   });
   index.sessionImage = {
     src: imgSrc

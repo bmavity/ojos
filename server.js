@@ -1,7 +1,8 @@
 var connect = require('connect'),
     io = require('socket.io'),
     injector = require('caruso').injector,
-    bus = require('masstransit').create();
+    bus = require('masstransit').create(),
+    auto = require('./auto');
   
 bus.init({
   transport: 'amqp',
@@ -10,10 +11,6 @@ bus.init({
 });
 
 var sessionTracker = require('./sessionTracker'),
-    resources = {
-      sessions: require('./resources/sessions')
-    },
-    views = require('./viewModels'),
     userAgent = require('useragent'),
     server,
     channel = require('./channel'),
@@ -47,26 +44,79 @@ var routes = function routes(app) {
     });
   });
 
-  app.post('/sessions/start', function(req, res) {
+};
+var sessionCrap = require('./resources/sessions');
+var indexModel = require('./resources/session/index/model');
+var session = {
+  index: function(req, res) {
+    indexModel.index(req.params.id, function(data) {
+      render(res, __dirname + '/views/sessions/index/index.html', data);
+    });
+  },
+  start: function(req, res) {
     var parsedUserAgent = userAgent.parser(req.headers['user-agent']),
-        resource = resources.sessions.start(parsedUserAgent);
+        resource = sessionCrap.start(parsedUserAgent);
     renderJson(res, {
       resource: resource,
       actions: {
         view: req.headers.origin + '/sessions/' + resource.id
       }
     });
-  });
+  }
+};
 
-  app.get('/sessions/:id', function(req, res) {
-    views.index(req.params.id, function(data) {
-      render(res, __dirname + '/views/sessions/index/index.html', data);
-    });
-  });
+function normalizePath(path, keys) {
+  path = path
+    .concat('/?')
+    .replace(/\/\(/g, '(?:/')
+    .replace(/(\/)?(\.)?:(\w+)(?:(\(.*?\)))?(\?)?/g, function(_, slash, format, key, capture, optional){
+      keys.push(key);
+      slash = slash || '';
+      return ''
+        + (optional ? '' : slash)
+        + '(?:'
+        + (optional ? slash : '')
+        + (format || '') + (capture || '([^/]+?)') + ')'
+        + (optional || '');
+    })
+    .replace(/([\/.])/g, '\\$1')
+    .replace(/\*/g, '(.+)');
+  return new RegExp('^' + path + '$', 'i');
+};
+
+var indexKeys = [],
+    index = normalizePath('/sessions/:id', indexKeys),
+    commandKeys = [],
+    command = normalizePath('/sessions/:command/:id', commandKeys);
+var testHandler = function(req, res, next) {
+  var indexResult,
+      commandResult;
+  req.params = req.params || {};
+  if(indexResult = index.exec(req.url)) {
+    var commandOrId = indexResult[1];
+    if(session[commandOrId]) {
+      session[commandOrId](req, res);
+    } else {
+      req.params.id = commandOrId;
+      session.index(req, res);
+    }
+  } else if(commandResult = command.exec(req.url)) {
+    var aCommand = commandResult[1],
+        anId = commandResult[2];
+    if(session[aCommand]) {
+      req.params.id = anId;
+      session[aCommand](req, res);
+    } else {
+      next();
+    }
+  } else {
+    next();
+  }
 };
 
 server = connect(
   connect.logger(),
+  testHandler,
   connect.static(__dirname + '/public'),
   connect.router(routes)
 );
@@ -81,18 +131,18 @@ socketServer.on('connection', function(client) {
     var issuedCommand = command.command;
     console.log(command);
     if(issuedCommand === 'setScreenSize') {
-      resources.sessions[command.command](command.data.id, command.data);
+      sessionCrap[command.command](command.data.id, command.data);
     } else if(issuedCommand === 'setContent') {
-      resources.sessions[command.command](command.data.sessionId, command.data);
+      sessionCrap[command.command](command.data.sessionId, command.data);
     } else if(issuedCommand === 'setCursorPosition') {
-      resources.sessions[command.command](command.data.sessionId, command.data);
+      sessionCrap[command.command](command.data.sessionId, command.data);
     } else if(issuedCommand === 'setScrollPosition') {
-      resources.sessions[command.command](command.data.sessionId, command.data);
+      sessionCrap[command.command](command.data.sessionId, command.data);
     } else if(issuedCommand === 'readySession') {
-      resources.sessions[command.command](command.data.sessionId, channelId);
+      sessionCrap[command.command](command.data.sessionId, channelId);
     } else if(issuedCommand.indexOf('/sessions/join/') !== -1) {
       var id = issuedCommand.replace(/^\/sessions\/join\//g, '');
-      resources.sessions['join'](id, channelId);
+      sessionCrap['join'](id, channelId);
     }
   });
 });
