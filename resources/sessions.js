@@ -1,6 +1,4 @@
-var uuid = require('node-uuid'),
-    EventEmitter = require('events').EventEmitter,
-    bus = require('masstransit').create(),
+var bus = require('masstransit').create(),
     sessions = {};
 
 var join = function sessionsJoin(id, channelId) {
@@ -51,17 +49,7 @@ var setScrollPosition = function sessionsSetScrollPosition(id, position) {
   });
 };
 
-var start = function sessionsStart(agent) {
-  var session = {
-    id: uuid(),
-    browser: agent.pretty(),
-    os: agent.prettyOs(),
-    time: new Date()
-  };
-  bus.publish('sessionStarted', session);
-  sessions[session.id] = session;
-  return session;
-};
+
 
 
 exports.join = join;
@@ -70,4 +58,3 @@ exports.setContent = setContent;
 exports.setCursorPosition = setCursorPosition;
 exports.setScreenSize = setScreenSize;
 exports.setScrollPosition = setScrollPosition;
-exports.start = start;

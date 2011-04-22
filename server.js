@@ -46,20 +46,21 @@ var routes = function routes(app) {
 
 };
 var sessionCrap = require('./resources/sessions');
-var indexModel = require('./resources/session/index/model');
+var indexModel = require('./resources/sessions/index/model');
 var session = {
   index: function(req, res) {
     indexModel.index(req.params.id, function(data) {
-      render(res, __dirname + '/views/sessions/index/index.html', data);
+      render(res, auto.getView('index').path, data);
     });
   },
   start: function(req, res) {
     var parsedUserAgent = userAgent.parser(req.headers['user-agent']),
-        resource = sessionCrap.start(parsedUserAgent);
+        startCommand = auto.getCommand('start'),
+        session = require(startCommand.path).handle(parsedUserAgent);
     renderJson(res, {
-      resource: resource,
+      resource: session,
       actions: {
-        view: req.headers.origin + '/sessions/' + resource.id
+        view: req.headers.origin + '/sessions/' + session.id
       }
     });
   }
