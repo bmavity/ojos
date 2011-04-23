@@ -46,13 +46,11 @@ var routes = function routes(app) {
 
 };
 var sessionCrap = require('./resources/sessions');
-var indexModel = require('./resources/sessions/index/model');
+var renderView = function(res, name, id) {
+  var view = auto.getView(name);
+  render(res, view.path, view.model.getById(id));
+};
 var session = {
-  index: function(req, res) {
-    indexModel.index(req.params.id, function(data) {
-      render(res, auto.getView('index').path, data);
-    });
-  },
   start: function(req, res) {
     var parsedUserAgent = userAgent.parser(req.headers['user-agent']),
         startCommand = auto.getCommand('start'),
@@ -98,15 +96,14 @@ var testHandler = function(req, res, next) {
     if(session[commandOrId]) {
       session[commandOrId](req, res);
     } else {
-      req.params.id = commandOrId;
-      session.index(req, res);
+      renderView(res, 'index', commandOrId);
     }
   } else if(commandResult = command.exec(req.url)) {
     var aCommand = commandResult[1],
-        anId = commandResult[2];
-    if(session[aCommand]) {
-      req.params.id = anId;
-      session[aCommand](req, res);
+        anId = commandResult[2],
+        view;
+    if(view = auto[aCommand]) {
+      renderView(res, aCommand, anId);
     } else {
       next();
     }

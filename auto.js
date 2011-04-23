@@ -1,7 +1,10 @@
 var fs = require('fs')
     path = require('path'),
     resourceDir = path.join(__dirname, '/resources/'),
-    resources = {};
+    resources = {},
+    dummy = {
+      getById: function() { return {}; }
+    };
 
 var findSomethings = function autoFindSomethings() {
   Object.keys(resources).forEach(function(resourceName) {
@@ -9,12 +12,15 @@ var findSomethings = function autoFindSomethings() {
     forEachDirectory(resource.path, function(dirname) {
       var basePath = path.join(resource.path, dirname),
           viewPath = path.join(basePath, 'view.html'),
+          modelPath = path.join(basePath, 'model.js'),
           commandPath = path.join(basePath, 'handler.js');
-      console.log(viewPath);
       if(path.existsSync(viewPath)) {
         resource.views[dirname] = {
           path: viewPath
         };
+        if(path.existsSync(modelPath)) {
+          resource.views[dirname].model = require(modelPath) || dummy;
+        }
       }
       if(path.existsSync(commandPath)) {
         resource.commands[dirname] = {

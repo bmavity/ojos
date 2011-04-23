@@ -3,7 +3,7 @@ var bus = require('masstransit').create(),
 
 bus.subscribe('sessionStarted', function(session) {
   var id = session.id;
-  viewModels['index'][id] = {
+  viewModels[id] = {
     sessionName: 'Session name ' + id,
     sessionJoin: {
       action: '/sessions/join/' + id
@@ -18,28 +18,26 @@ bus.subscribe('sessionStarted', function(session) {
 
 bus.subscribe('sessionScreenSizeSet', function(screenSizeSet) {
   var id = screenSizeSet.id,
-      index = viewModels['index'][id],
+      model = viewModels[id],
       imgSrc = '/img/sessions/' + id + '.png';
-  index.dimensions = screenSizeSet.width + ' x ' + screenSizeSet.height;
+  model.dimensions = screenSizeSet.width + ' x ' + screenSizeSet.height;
   require('./screenshotFactory').createScreenshot({
     url: 'http://localhost:8000/',
     height: screenSizeSet.height,
     width: screenSizeSet.width,
     outputFile: 'public' + imgSrc
   });
-  index.sessionImage = {
+  model.sessionImage = {
     src: imgSrc
   };
 });
 
-var index = function(id, callback) {
-  callback(viewModels['index'][id]);
+var getById = function(id) {
+  return viewModels[id];
 };
 
-viewModels['index'] = {};
 
-
-exports.index = index;
+exports.getById = getById;
 
 
 /*

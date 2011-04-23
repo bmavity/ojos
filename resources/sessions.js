@@ -1,18 +1,15 @@
-var bus = require('masstransit').create(),
-    sessions = {};
+var bus = require('masstransit').create();
+  
 
 var join = function sessionsJoin(id, channelId) {
-  sessions[id].clients.push(channelId);
   bus.publish('sessionJoined', {
     id: id,
-    channelId: sessions[id].channelId,
+    //channelId: sessions[id].channelId,
     clientChannelId: channelId
   });
 };
 
 var readySession = function sessionsReadySession(id, channelId) {
-  sessions[id].channelId = channelId;
-  sessions[id].clients = [];
   bus.publish('sessionReady', {
     id: id,
     channelId: channelId
@@ -20,8 +17,6 @@ var readySession = function sessionsReadySession(id, channelId) {
 };
 
 var setContent = function sessionsSetContent(id, content) {
-  sessions[id].content = content.content;
-  sessions[id].stylesheets = content.stylesheets;
   bus.publish('sessionContentSet', content);
 };
 
