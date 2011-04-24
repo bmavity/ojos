@@ -118,8 +118,7 @@ exports.getResource = function(path) {
     };
   }
   if(idRouteMatches.length) {
-console.log(idRouteMatches.exec(path));
-    id = idRouteMatches.exec(path)[1];
+    id = resource[idRouteMatches[0]].idRouteRegEx.exec(path)[1];
     return {
       resource: resource[idRouteMatches[0]],
       id: id

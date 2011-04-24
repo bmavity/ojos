@@ -55,11 +55,7 @@ var routes = function routes(app) {
 };
 var sessionCrap = require('./resources/sessions');
 var renderView = function(res, result) {
-  render(res, result.resource.viewPath, result.resource.model.getById(result.id));
-};
-var session = {
-  start: function(res, result) {
-  }
+  render(res, result.resource.view, result.resource.model.getById(result.id));
 };
 
 var testHandler = function(req, res, next) {
