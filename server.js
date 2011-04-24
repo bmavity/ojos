@@ -46,9 +46,8 @@ var routes = function routes(app) {
 
 };
 var sessionCrap = require('./resources/sessions');
-var renderView = function(res, name, id) {
-  var view = auto.getView(name);
-  render(res, view.path, view.model.getById(id));
+var renderView = function(res, result) {
+  render(res, result.resource.viewPath, result.resource.model.getById(result.id));
 };
 var session = {
   start: function(req, res) {
@@ -64,46 +63,13 @@ var session = {
   }
 };
 
-function normalizePath(path, keys) {
-  path = path
-    .concat('/?')
-    .replace(/\/\(/g, '(?:/')
-    .replace(/(\/)?(\.)?:(\w+)(?:(\(.*?\)))?(\?)?/g, function(_, slash, format, key, capture, optional){
-      keys.push(key);
-      slash = slash || '';
-      return ''
-        + (optional ? '' : slash)
-        + '(?:'
-        + (optional ? slash : '')
-        + (format || '') + (capture || '([^/]+?)') + ')'
-        + (optional || '');
-    })
-    .replace(/([\/.])/g, '\\$1')
-    .replace(/\*/g, '(.+)');
-  return new RegExp('^' + path + '$', 'i');
-};
-
-var indexKeys = [],
-    index = normalizePath('/sessions/:id', indexKeys),
-    commandKeys = [],
-    command = normalizePath('/sessions/:command/:id', commandKeys);
 var testHandler = function(req, res, next) {
-  var indexResult,
-      commandResult;
-  req.params = req.params || {};
-  if(indexResult = index.exec(req.url)) {
-    var commandOrId = indexResult[1];
-    if(session[commandOrId]) {
-      session[commandOrId](req, res);
-    } else {
-      renderView(res, 'index', commandOrId);
-    }
-  } else if(commandResult = command.exec(req.url)) {
-    var aCommand = commandResult[1],
-        anId = commandResult[2],
-        view;
-    if(view = auto[aCommand]) {
-      renderView(res, aCommand, anId);
+  var result = auto.getResource(req.url);
+  if(result) {
+    if(req.method.toLowerCase === 'get' && result.resource.model) {
+      renderView(res, result);
+    } else if(req.method.toLowerCase() === 'post' && result.resource.handler) {
+      next();
     } else {
       next();
     }
