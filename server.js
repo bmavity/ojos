@@ -26,7 +26,15 @@ var render = function(res, fileName, data) {
   });
 };
 
-var renderJson = function(res, data) {
+var renderJson = function(req, res, result) {
+  var parsedUserAgent = userAgent.parser(req.headers['user-agent']),
+      session = result.resource.command.handle(parsedUserAgent),
+      data = {
+        resource: session,
+        actions: {
+          view: req.headers.origin + '/sessions/' + session.id
+        }
+      };
   res.writeHead(200, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify(data));
 };
@@ -50,26 +58,19 @@ var renderView = function(res, result) {
   render(res, result.resource.viewPath, result.resource.model.getById(result.id));
 };
 var session = {
-  start: function(req, res) {
-    var parsedUserAgent = userAgent.parser(req.headers['user-agent']),
-        startCommand = auto.getCommand('start'),
-        session = require(startCommand.path).handle(parsedUserAgent);
-    renderJson(res, {
-      resource: session,
-      actions: {
-        view: req.headers.origin + '/sessions/' + session.id
-      }
-    });
+  start: function(res, result) {
   }
 };
 
 var testHandler = function(req, res, next) {
   var result = auto.getResource(req.url);
+  console.log(req.url);
+  console.log(result);
   if(result) {
-    if(req.method.toLowerCase === 'get' && result.resource.model) {
+    if(req.method.toLowerCase() === 'get' && result.resource.model) {
       renderView(res, result);
-    } else if(req.method.toLowerCase() === 'post' && result.resource.handler) {
-      next();
+    } else if(req.method.toLowerCase() === 'post' && result.resource.command) {
+      renderJson(req, res, result);
     } else {
       next();
     }

@@ -114,14 +114,14 @@ exports.getResource = function(path) {
       id;
   if(routeMatches.length) {
     return {
-      resource: routeMatches[0]
+      resource: resource[routeMatches[0]]
     };
   }
   if(idRouteMatches.length) {
 console.log(idRouteMatches.exec(path));
     id = idRouteMatches.exec(path)[1];
     return {
-      resource: idRouteMatches[0],
+      resource: resource[idRouteMatches[0]],
       id: id
     };
   }
