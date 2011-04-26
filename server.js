@@ -30,11 +30,17 @@ var finishAll = function(fns, finisher) {
   });
 };
 
-var render = function(res, fileName, data) {
+var inject = function(fileName, data, callback) {
   injector.env(fileName, function(err, env) {
     env.inject(data);
+    callback(env.render());
+  });
+};
+
+var render = function(res, fileName, data) {
+  inject(fileName, data, function(html) {
     res.writeHead(200, { 'Content-Type': 'text/html' });
-    res.end(env.render());
+    res.end(html);
   });
 };
 
