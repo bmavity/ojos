@@ -16,7 +16,19 @@ var sessionTracker = require('./sessionTracker'),
     channel = require('./channel'),
     socketServer;
 
- 
+var finishAll = function(fns, finisher) {
+  var totalCount = fns.length,
+      completeCount = 0;
+  var fnDone = function() {
+    completeCount += 1;
+    if(completeCount === totalCount) {
+      finisher();
+    }
+  };
+  fns.forEach(function(fn) {
+    fn(fnDone);
+  });
+};
 
 var render = function(res, fileName, data) {
   injector.env(fileName, function(err, env) {
@@ -39,6 +51,33 @@ var renderJson = function(req, res, result) {
   res.end(JSON.stringify(data));
 };
 
+var renderView = function(res, result) {
+  var resource = result.resource,
+      model = resource.model.getById(result.id),
+      actions = model.actions || [],
+      actionModels = {};
+  finishAll(actions.map(function(action) {
+      return function(onComplete) {
+        var res2 = auto.getResource(action),
+            data = res2.model.getById(result.id);
+        injector.env(res2.view, function(err, env) {
+          env.injectPartial(data);
+          actionModels[action] = {
+            html: env.renderPartial()
+          }
+          onComplete();
+        });
+      }
+    }),
+    function() {
+      render(res, resource.view, {
+        model: model,
+        actions: actionModels
+      });
+    }
+  );
+};
+
 var routes = function routes(app) {
   app.get('/', function(req, res) {
     render(res, __dirname + '/views/index.html', {
@@ -54,10 +93,6 @@ var routes = function routes(app) {
 
 };
 var sessionCrap = require('./resources/sessions');
-var renderView = function(res, result) {
-  render(res, result.resource.view, result.resource.model.getById(result.id));
-};
-
 var testHandler = function(req, res, next) {
   var result = auto.getResource(req.url);
   console.log(req.url);

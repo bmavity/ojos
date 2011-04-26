@@ -5,9 +5,7 @@ bus.subscribe('sessionStarted', function(session) {
   var id = session.id;
   viewModels[id] = {
     sessionName: 'Session name ' + id,
-    sessionJoin: {
-      action: '/sessions/join/' + id
-    },
+    actions: ['join'],
     info: {
       time: session.time.toString(),
       browser: session.browser,

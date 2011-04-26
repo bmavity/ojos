@@ -102,6 +102,7 @@ console.log(resources);
 
 
 exports.getResource = function(path) {
+  if(resources['sessions'][path]) return resources['sessions'][path];
   var resource = resources['sessions'],
       routeMatches = Object.keys(resource).filter(function(actionName) {
         var action = resource[actionName];
