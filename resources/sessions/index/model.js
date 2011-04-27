@@ -30,20 +30,9 @@ bus.subscribe('sessionScreenSizeSet', function(screenSizeSet) {
   };
 });
 
-var getById = function(id) {
+var getModel = function(id) {
   return viewModels[id];
 };
 
 
-exports.getById = getById;
-
-
-/*
-      sessionName: 'Session ' + req.params.id,
-      info: {
-        author: 'by Anonymous',
-        browser: 'FireFox 4.0',
-        dimensions: '1600 x 1200',
-        time: 'at 5:00 PM'
-      }
-*/
+module.exports = exports = getModel;

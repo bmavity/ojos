@@ -125,10 +125,10 @@
       success: function(data) {
         var actions = data.actions;
         Object.keys(actions).forEach(function(key) {
-          $actions.find('#' + key).val(actions[key]);
-          $startSession.append($('<a></a>').attr('href', actions[key]).html('Join'));
+          $actions.find('#' + key).val(actions[key].href);
+          $startSession.append($('<a></a>').attr('href', actions[key].href).html('Join'));
         });
-        init(data.resource.id);
+        init(data.model.id);
       }
     });
     evt.preventDefault();

@@ -8,6 +8,11 @@ bus.subscribe('sessionStarted', function(session) {
   };
 });
 
+var getById = function(id) {
+  return viewModels[id];
+};
+
+module.exports = exports = getById;
 
 exports.getAction = function getAction(id) {
   return {
@@ -15,6 +20,6 @@ exports.getAction = function getAction(id) {
   };
 };
 
-exports.getById = function getById(id) {
+exports.getById = function(id) {
   return viewModels[id];
 };

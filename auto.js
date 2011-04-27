@@ -2,20 +2,29 @@ var fs = require('fs')
     path = require('path'),
     resourceDir = path.join(__dirname, '/resources/'),
     resources = {},
-    dummy = {
-      getById: function() { return {}; }
-    };
+    dummy = function(){};
 
-var createResource = function(resource, action) {
-  var baseRoute = '/' + resource;
+var createResource = function(resource, action, handlerFn) {
+  var baseRoute = '/' + resource,
+      params = parseDependencies(handlerFn);
   baseRoute += action !== 'index' ? '/' + action : '';
   if(!resources[resource][action]) {
     resources[resource][action] = {
-      route: baseRoute,
-      idRoute: baseRoute + '/:id'
+      route: baseRoute + (params.indexOf('id') !== -1 ? '/:id' : '')
     };
   }
   return resources[resource][action];
+};
+
+var functionRegEx = /\(([\s\S]*?)\)/;
+var parseDependencies = function(fn) {
+  return functionRegEx.
+    exec(fn)[1].
+    replace(/\s/g, '').
+    split(',').
+    filter(function(name) {
+      return name.length !== 0;
+    });
 };
 
 var findSomethings = function autoFindSomethings() {
@@ -25,17 +34,26 @@ var findSomethings = function autoFindSomethings() {
       var basePath = path.join(resource.path, dirname),
           viewPath = path.join(basePath, 'view.html'),
           modelPath = path.join(basePath, 'model.js'),
-          commandPath = path.join(basePath, 'handler.js');
+          commandPath = path.join(basePath, 'handler.js'),
+          model,
+          command;
       if(path.existsSync(viewPath)) {
-        createResource(resourceName, dirname);
-        resource[dirname].view = viewPath;
         if(path.existsSync(modelPath)) {
-          resource[dirname].model = require(modelPath) || dummy;
+          model = require(modelPath) || dummy;
+          createResource(resourceName, dirname, model);
+          resource[dirname].model = model;
+          resource[dirname].modelParams = parseDependencies(model);
         }
+        if(!resource[dirname]) {
+          createResource(resourceName, dirname, function(){});
+        }
+        resource[dirname].view = viewPath;
       }
       if(path.existsSync(commandPath)) {
-        createResource(resourceName, dirname);
-        resource[dirname].command = require(commandPath);
+        command = require(commandPath);
+        createResource(resourceName, dirname, command.handle);
+        resource[dirname].command = command;
+        resource[dirname].commandParams = parseDependencies(command.handle);
       }
     });
   });
@@ -92,14 +110,28 @@ var createRoutes = function(resourceName) {
         return !!resource[action].route;
       });
   actions.forEach(function(actionName) {
-    var action = resource[actionName];
-    action.routeRegEx = normalizePath(action.route, []);
-    action.idRouteRegEx = normalizePath(action.idRoute, []);
+    var action = resource[actionName],
+        routeParams = [];
+    action.routeRegEx = normalizePath(action.route, routeParams);
+    action.routeParams = routeParams;
   });
 };
 createRoutes('sessions');
-console.log(resources);
+console.log(resources.sessions);
 
+
+exports.getAction = function(action, params) {
+  var route = resources['sessions'][action].route,
+      keys = [];
+  normalizePath(route, keys);
+  keys.forEach(function(key) {
+    var keyReplacer = new RegExp('\/:' + key, 'i');
+    route = route.replace(keyReplacer, '/' + params[key]);
+  });
+  return {
+    href: route
+  };
+};
 
 exports.getResource = function(path) {
   if(resources['sessions'][path]) return resources['sessions'][path];
@@ -108,21 +140,27 @@ exports.getResource = function(path) {
         var action = resource[actionName];
         return action.routeRegEx && action.routeRegEx.exec(path) !== null;
       }),
-      idRouteMatches = Object.keys(resource).filter(function(actionName) {
-        var action = resource[actionName];
-        return action.routeRegEx && action.idRouteRegEx.exec(path) !== null;
-      }),
-      id;
+      matchingResource,
+      parsedRoute,
+      index = 1,
+      routeParams = {};
   if(routeMatches.length) {
+    routeMatches.sort(function(a1, b1) {
+      var a = resource[a1],
+          b = resource[b1];
+      if(a.routeParams.length < b.routeParams.length) return -1;
+      if(a.routeParams.length > b.routeParams.length) return 1;
+      return 0;
+    });
+    matchingResource = resource[routeMatches[0]];
+    parsedRoute = matchingResource.routeRegEx.exec(path);
+    matchingResource.routeParams.forEach(function(paramName) {
+      routeParams[paramName] = parsedRoute[index];
+      index += 1;
+    });
     return {
-      resource: resource[routeMatches[0]]
-    };
-  }
-  if(idRouteMatches.length) {
-    id = resource[idRouteMatches[0]].idRouteRegEx.exec(path)[1];
-    return {
-      resource: resource[idRouteMatches[0]],
-      id: id
+      resource: matchingResource,
+      params: routeParams
     };
   }
   return null;

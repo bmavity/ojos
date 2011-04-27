@@ -45,27 +45,17 @@ var render = function(res, fileName, data) {
 };
 
 var renderJson = function(req, res, result) {
-  var parsedUserAgent = userAgent.parser(req.headers['user-agent']),
-      session = result.resource.command.handle(parsedUserAgent),
-      data = {
-        resource: session,
-        actions: {
-          view: req.headers.origin + '/sessions/' + session.id
-        }
-      };
   res.writeHead(200, { 'Content-Type': 'application/json' });
-  res.end(JSON.stringify(data));
+  res.end(JSON.stringify(result));
 };
 
-var renderView = function(res, result) {
-  var resource = result.resource,
-      model = resource.model.getById(result.id),
-      actions = model.actions || [],
-      actionModels = {};
-  finishAll(actions.map(function(action) {
+var renderView = function(req, res, resource, params, result) {
+  var actionModels = {};
+  finishAll(
+    Object.keys(result.actions).map(function(action) {
       return function(onComplete) {
         var res2 = auto.getResource(action),
-            data = res2.model.getById(result.id);
+            data = res2.model.apply(null, params.arr);
         injector.env(res2.view, function(err, env) {
           env.injectPartial(data);
           actionModels[action] = {
@@ -77,11 +67,33 @@ var renderView = function(res, result) {
     }),
     function() {
       render(res, resource.view, {
-        model: model,
+        model: result.model,
         actions: actionModels
       });
     }
   );
+};
+
+var getParams = function(req, routeParams, paramNames) {
+  var obj = {},
+      arr = [];
+  var getVal = function(paramName) {
+    if(routeParams[paramName]) {
+      return routeParams[paramName];
+    }
+    if(paramName === 'agent') {
+      return userAgent.parser(req.headers['user-agent']);
+    }
+  };
+  paramNames.forEach(function(paramName) {
+    var val = getVal(paramName);
+    obj[paramName] = val;
+    arr.push(val);
+  });
+  return {
+    arr: arr,
+    obj: obj
+  };
 };
 
 var routes = function routes(app) {
@@ -96,18 +108,42 @@ var routes = function routes(app) {
       ]
     });
   });
-
 };
+
 var sessionCrap = require('./resources/sessions');
 var testHandler = function(req, res, next) {
-  var result = auto.getResource(req.url);
-  console.log(req.url);
-  console.log(result);
+  var result = auto.getResource(req.url),
+      resource,
+      params,
+      thisIsIt,
+      daActions = {};
   if(result) {
+    resource = result.resource;
     if(req.method.toLowerCase() === 'get' && result.resource.model) {
-      renderView(res, result);
+      params = getParams(req, result.params, result.resource.modelParams);
+      daShit = resource.model.apply(null, params.arr);
+      daShit.actions.forEach(function(action) {
+        daActions[action] = auto.getAction(action, params.obj);
+      });
+      thisIsIt = {
+        model: daShit,
+        actions: daActions
+      };
+      renderView(req, res, resource, params, thisIsIt);
     } else if(req.method.toLowerCase() === 'post' && result.resource.command) {
-      renderJson(req, res, result);
+      params = getParams(req, result.params, result.resource.commandParams);
+      daShit = resource.command.handle.apply(null, params.arr);
+      if(daShit.actions) {
+        daShit.actions.forEach(function(action) {
+          daActions[action] = auto.getAction(action, daShit.model);
+        });
+      }
+      thisIsIt = {
+        model: daShit.model,
+        actions: daActions
+      };
+      console.log(thisIsIt);
+      renderJson(req, res, thisIsIt);
     } else {
       next();
     }

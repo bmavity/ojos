@@ -9,7 +9,10 @@ var start = function start(agent) {
     time: new Date()
   };
   bus.publish('sessionStarted', session);
-  return session;
+  return {
+    model: session,
+    actions: ['index']
+  };
 };
 
 
