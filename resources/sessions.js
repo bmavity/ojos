@@ -11,14 +11,6 @@ var setCursorPosition = function sessionsCursorPositionSet(id, position) {
   });
 };
 
-var setScreenSize = function sessionsSetScreenSize(id, dimensions) {
-  bus.publish('sessionScreenSizeSet', {
-    id: id,
-    height: dimensions.height,
-    width: dimensions.width
-  });
-};
-
 var setScrollPosition = function sessionsSetScrollPosition(id, position) {
   bus.publish('sessionScrollPositionSet', {
     id: id,
@@ -31,5 +23,4 @@ var setScrollPosition = function sessionsSetScrollPosition(id, position) {
 
 
 exports.setCursorPosition = setCursorPosition;
-exports.setScreenSize = setScreenSize;
 exports.setScrollPosition = setScrollPosition;

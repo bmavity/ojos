@@ -55,9 +55,8 @@
 
   var setScreenSize = function setScreenSize(id) {
     submitCommand({
-      command: 'setScreenSize',
+      command: '/sessions/setScreenSize/' + id,
       data: {
-        id: id,
         height: $window.height(),
         width: $window.width()
       }
