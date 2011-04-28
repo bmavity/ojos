@@ -44,9 +44,8 @@
 
   var setCursorPosition = function setCursorPosition(sessionId, x, y) {
     submitCommand({
-      command: 'setCursorPosition',
+      command: '/sessions/setCursorPosition/' + sessionId,
       data: {
-        sessionId: sessionId,
         x: x,
         y: y
       }
