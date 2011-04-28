@@ -64,9 +64,8 @@
 
   var setScrollPosition = function setScrollPosition(id) {
     submitCommand({
-      command: 'setScrollPosition',
+      command: '/sessions/setScrollPosition/' + id,
       data: {
-        sessionId: id,
         left: $window.scrollLeft(),
         top: $window.scrollTop()
       }

@@ -1,10 +1,10 @@
 var bus = require('masstransit').create();
   
-var setScrollPosition = function sessionsSetScrollPosition(id, position) {
+var setScrollPosition = function(id, top, left) {
   bus.publish('sessionScrollPositionSet', {
     id: id,
-    left: position.left,
-    top: position.top
+    left: left,
+    top: top
   });
 };
 
