@@ -167,8 +167,6 @@ socketServer.on('connection', function(client) {
   var getWebSocketParams = function(webSocketParams, routeParams, resourceOperationParams) {
     var obj = {},
         arr = [];
-        console.log(webSocketParams);
-        console.log(resourceOperationParams);
     var getVal = function(paramName) {
       if(paramName === 'clientId') {
         return channelId;
@@ -191,32 +189,11 @@ socketServer.on('connection', function(client) {
   };
 
   client.on('message', function(message) {
-    var isNew = message.command && message.command.indexOf('/') !== -1;
-    console.log(message);
-    if(isNew) {
-      var routeParseResult = auto.getResource(message.command),
-          resourceOperation = routeParseResult.resource,
-          routeParams = routeParseResult.params,
-          params = getWebSocketParams(message.data, routeParams, resourceOperation.commandParams);
-      console.log(params);
-      resourceOperation.command.handle.apply(null, params.arr);
-    } else {
-      /*
-      var issuedCommand = message.command;
-      if(issuedCommand === 'setScreenSize') {
-        sessionCrap[message.command](message.data.id, message.data);
-      } else if(issuedCommand === 'setContent') {
-        sessionCrap[message.command](message.data.sessionId, message.data);
-      } else if(issuedCommand === 'setCursorPosition') {
-        sessionCrap[message.command](message.data.sessionId, message.data);
-      } else if(issuedCommand === 'setScrollPosition') {
-        sessionCrap[message.command](message.data.sessionId, message.data);
-      } else if(issuedCommand.indexOf('/sessions/join/') !== -1) {
-        var id = issuedCommand.replace(/^\/sessions\/join\//g, '');
-        sessionCrap['join'](id, channelId);
-      }
-      */
-    }
+    var routeParseResult = auto.getResource(message.command),
+        resourceOperation = routeParseResult.resource,
+        routeParams = routeParseResult.params,
+        params = getWebSocketParams(message.data, routeParams, resourceOperation.commandParams);
+    resourceOperation.command.handle.apply(null, params.arr);
   });
 });
 
