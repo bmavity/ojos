@@ -20,10 +20,7 @@
 
   var readySession = function(sessionId) {
     submitCommand({
-      command: '/sessions/ready/' + sessionId,
-      data: {
-        id: sessionId
-      }
+      command: '/sessions/ready/' + sessionId
     });
   };
 
