@@ -1,9 +1,7 @@
 var bus = require('masstransit').create();
   
 
-var setContent = function sessionsSetContent(id, content) {
-  bus.publish('sessionContentSet', content);
-};
+
 
 var setCursorPosition = function sessionsCursorPositionSet(id, position) {
   bus.publish('sessionCursorPositionSet', {
@@ -32,7 +30,6 @@ var setScrollPosition = function sessionsSetScrollPosition(id, position) {
 
 
 
-exports.setContent = setContent;
 exports.setCursorPosition = setCursorPosition;
 exports.setScreenSize = setScreenSize;
 exports.setScrollPosition = setScrollPosition;

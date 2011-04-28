@@ -20,5 +20,10 @@ bus.subscribe('sessionJoined', function(sessionJoined) {
   session.viewerIds.push(sessionJoined.clientId);
 });
 
+bus.subscribe('sessionContentSet', function(sessionContentSet) {
+  var session = sessions[sessionContentSet.id];
+  
+});
+
 
 exports.init = init;

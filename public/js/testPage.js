@@ -34,9 +34,8 @@
     });
 
     submitCommand({
-      command: 'setContent',
+      command: '/sessions/setContent/' + sessionId,
       data: {
-        sessionId: sessionId,
         content: $fakeBody.html(),
         styles: stylesheets
       }
