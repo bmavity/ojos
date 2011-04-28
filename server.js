@@ -13,7 +13,7 @@ bus.init({
 var sessionTracker = require('./sessionTracker'),
     userAgent = require('useragent'),
     server,
-    channel = require('./channel'),
+    notifier = require('./notifier'),
     socketServer;
 
 var finishAll = function(fns, finisher) {
@@ -110,7 +110,6 @@ var routes = function routes(app) {
   });
 };
 
-var sessionCrap = require('./resources/sessions');
 var testHandler = function(req, res, next) {
   var result = auto.getResource(req.url),
       resource,
@@ -160,27 +159,63 @@ server = connect(
 );
 socketServer = io.listen(server);
 
-channel.init(socketServer);
+notifier.init(socketServer);
 
 socketServer.on('connection', function(client) {
   var channelId = client.sessionId;
 
-  client.on('message', function(command) {
-    var issuedCommand = command.command;
-    console.log(command);
-    if(issuedCommand === 'setScreenSize') {
-      sessionCrap[command.command](command.data.id, command.data);
-    } else if(issuedCommand === 'setContent') {
-      sessionCrap[command.command](command.data.sessionId, command.data);
-    } else if(issuedCommand === 'setCursorPosition') {
-      sessionCrap[command.command](command.data.sessionId, command.data);
-    } else if(issuedCommand === 'setScrollPosition') {
-      sessionCrap[command.command](command.data.sessionId, command.data);
-    } else if(issuedCommand === 'readySession') {
-      sessionCrap[command.command](command.data.sessionId, channelId);
-    } else if(issuedCommand.indexOf('/sessions/join/') !== -1) {
-      var id = issuedCommand.replace(/^\/sessions\/join\//g, '');
-      sessionCrap['join'](id, channelId);
+  var getWebSocketParams = function(webSocketParams, routeParams, resourceOperationParams) {
+    var obj = {},
+        arr = [];
+        console.log(webSocketParams);
+        console.log(resourceOperationParams);
+    var getVal = function(paramName) {
+      if(paramName === 'clientId') {
+        return channelId;
+      }
+      if(routeParams[paramName]) {
+        return routeParams[paramName];
+      }
+      return webSocketParams[paramName];
+    };
+
+    resourceOperationParams.forEach(function(paramName) {
+      var val = getVal(paramName);
+      obj[paramName] = val;
+      arr.push(val);
+    });
+    return {
+      arr: arr,
+      obj: obj
+    }; 
+  };
+
+  client.on('message', function(message) {
+    var isNew = message.command && message.command.indexOf('/') !== -1;
+    console.log(message);
+    if(isNew) {
+      var routeParseResult = auto.getResource(message.command),
+          resourceOperation = routeParseResult.resource,
+          routeParams = routeParseResult.params,
+          params = getWebSocketParams(message.data, routeParams, resourceOperation.commandParams);
+      console.log(params);
+      resourceOperation.command.handle.apply(null, params.arr);
+    } else {
+      /*
+      var issuedCommand = message.command;
+      if(issuedCommand === 'setScreenSize') {
+        sessionCrap[message.command](message.data.id, message.data);
+      } else if(issuedCommand === 'setContent') {
+        sessionCrap[message.command](message.data.sessionId, message.data);
+      } else if(issuedCommand === 'setCursorPosition') {
+        sessionCrap[message.command](message.data.sessionId, message.data);
+      } else if(issuedCommand === 'setScrollPosition') {
+        sessionCrap[message.command](message.data.sessionId, message.data);
+      } else if(issuedCommand.indexOf('/sessions/join/') !== -1) {
+        var id = issuedCommand.replace(/^\/sessions\/join\//g, '');
+        sessionCrap['join'](id, channelId);
+      }
+      */
     }
   });
 });

@@ -13,13 +13,3 @@ var getById = function(id) {
 };
 
 module.exports = exports = getById;
-
-exports.getAction = function getAction(id) {
-  return {
-    href: viewModels[id].action
-  };
-};
-
-exports.getById = function(id) {
-  return viewModels[id];
-};

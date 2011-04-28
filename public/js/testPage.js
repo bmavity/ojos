@@ -20,9 +20,9 @@
 
   var readySession = function(sessionId) {
     submitCommand({
-      command: 'readySession',
+      command: '/sessions/ready/' + sessionId,
       data: {
-        sessionId: sessionId
+        id: sessionId
       }
     });
   };
@@ -76,12 +76,6 @@
         left: $window.scrollLeft(),
         top: $window.scrollTop()
       }
-    });
-  };
-
-  var startSession = function startSession() {
-    submitCommand({
-      command: 'startSession'
     });
   };
 

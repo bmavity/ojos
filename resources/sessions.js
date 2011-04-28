@@ -1,21 +1,6 @@
 var bus = require('masstransit').create();
   
 
-var join = function sessionsJoin(id, channelId) {
-  bus.publish('sessionJoined', {
-    id: id,
-    //channelId: sessions[id].channelId,
-    clientChannelId: channelId
-  });
-};
-
-var readySession = function sessionsReadySession(id, channelId) {
-  bus.publish('sessionReady', {
-    id: id,
-    channelId: channelId
-  });
-};
-
 var setContent = function sessionsSetContent(id, content) {
   bus.publish('sessionContentSet', content);
 };
@@ -47,8 +32,6 @@ var setScrollPosition = function sessionsSetScrollPosition(id, position) {
 
 
 
-exports.join = join;
-exports.readySession = readySession;
 exports.setContent = setContent;
 exports.setCursorPosition = setCursorPosition;
 exports.setScreenSize = setScreenSize;
