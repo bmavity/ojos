@@ -6,9 +6,12 @@
         handlers = {},
         sessionId,
         $portal = $('<iframe id="peekaboo"></iframe>'),
-        $contentWindow = $($portal[0].contentWindow);
-    
+        $contentWindow;
+$portal.hide();
+$peekaboo.after($portal);
     handlers['sessionContentSet'] = function(viewData) {
+      var $contents = $portal.contents();
+      console.log($contents[0].getElementsByTagName('head')[0]);
       viewData.styles.push('/css/cursor.css');
       viewData.styles.forEach(function(ss) {
         if(ss.forEach !== undefined) {
@@ -23,6 +26,7 @@
         }
         $portal.contents()[0].getElementsByTagName('head')[0].appendChild(css);
       });
+      console.log($contents.find('body'));
       $portal.contents().find('body').html(viewData.content).append('<div class="mouse"></div>');
     };
 
@@ -34,7 +38,8 @@
     };
 
     handlers['sessionJoined'] = function() {
-      $peekaboo.replaceWith($portal);
+      $peekaboo.hide();
+      $portal.show();
     };
 
     handlers['sessionScreenSizeSet'] = function(dimensions) {

@@ -33,15 +33,16 @@ bus.subscribe('sessionReady', function(sessionReady) {
 
 bus.subscribe('sessionJoined', function(sessionJoined) {
   var session = sessions[sessionJoined.id],
-      sessionId = sessionJoined.id;
+      sessionId = sessionJoined.id,
+      viewerId = sessionJoined.clientId,
+      channel = getChannel(viewerId);
   session.viewerIds = session.viewerIds || [];
-  session.viewerIds.push(sessionJoined.clientId);
 
-  sendAll(sessionId, {
+  channel.send({
     evt: 'sessionJoined'
   });
 
-  sendViewers(sessionId, {
+  channel.send({
     evt: 'sessionContentSet',
     data: {
       content: session.content,
@@ -49,20 +50,22 @@ bus.subscribe('sessionJoined', function(sessionJoined) {
     }
   });
   
-  sendViewers(sessionId, {
+  channel.send({
     evt: 'sessionScreenSizeSet',
     data: session.dimensions
   });
 
-  sendViewers(sessionId, {
+  channel.send({
     evt: 'sessionScrollPositionSet',
     data: session.scrollPosition
   });
 
-  sendViewers(sessionId, {
+  channel.send({
     evt: 'sessionCursorPositionSet',
     data: session.cursorPosition
   });
+
+  session.viewerIds.push(sessionJoined.clientId);
 });
 
 bus.subscribe('sessionContentSet', function(message) {
