@@ -19,15 +19,17 @@ bus.subscribe('sessionScreenSizeSet', function(screenSizeSet) {
       model = viewModels[id],
       imgSrc = '/img/sessions/' + id + '.png';
   model.dimensions = screenSizeSet.width + ' x ' + screenSizeSet.height;
-  require('./screenshotFactory').createScreenshot({
-    url: 'http://localhost:8000/',
-    height: screenSizeSet.height,
-    width: screenSizeSet.width,
-    outputFile: 'public' + imgSrc
-  });
-  model.sessionImage = {
-    src: imgSrc
-  };
+  if(!model.sessionImage) {
+    require('./screenshotFactory').createScreenshot({
+      url: 'http://localhost:8000/',
+      height: screenSizeSet.height,
+      width: screenSizeSet.width,
+      outputFile: 'public' + imgSrc
+    });
+    model.sessionImage = {
+      src: imgSrc
+    };
+  }
 });
 
 var getModel = function(id) {

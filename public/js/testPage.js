@@ -54,14 +54,16 @@
     }
   };
 
-  var setScreenSize = function setScreenSize(id) {
-    submitCommand({
-      command: '/sessions/setScreenSize/' + id,
-      data: {
-        height: $window.height(),
-        width: $window.width()
-      }
-    });
+  var setScreenSize = function setScreenSize() {
+    if(id) {
+      submitCommand({
+        command: '/sessions/setScreenSize/' + id,
+        data: {
+          height: $window.height(),
+          width: $window.width()
+        }
+      });
+    }
   };
 
   var setScrollPosition = function setScrollPosition() {
@@ -100,9 +102,7 @@
   };
 
   $window.scroll(limit(setScrollPosition));
-/*
   $window.resize(limit(setScreenSize));
-*/
   $document.mousemove(limit(function(evt) {
     setCursorPosition(evt.pageX, evt.pageY);
   }));
