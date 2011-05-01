@@ -3,7 +3,8 @@
         port: 8000
       }),
       $window = $(window),
-      $document = $(document);
+      $document = $(document),
+      id;
 
   socket.on('message', function(m) {
     console.log(m);
@@ -15,7 +16,6 @@
     setContent(id);
     setScreenSize(id);
     setScrollPosition(id);
-    setCursorPosition(id, position.x, position.y);
   };
 
   var readySession = function(sessionId) {
@@ -42,14 +42,16 @@
     });
   };
 
-  var setCursorPosition = function setCursorPosition(sessionId, x, y) {
-    submitCommand({
-      command: '/sessions/setCursorPosition/' + sessionId,
-      data: {
-        x: x,
-        y: y
-      }
-    });
+  var setCursorPosition = function setCursorPosition(x, y) {
+    if(id) {
+      submitCommand({
+        command: '/sessions/setCursorPosition/' + id,
+        data: {
+          x: x,
+          y: y
+        }
+      });
+    }
   };
 
   var setScreenSize = function setScreenSize(id) {
@@ -85,7 +87,7 @@
         canReport = false;
         callback.apply({}, arguments);
         setTimeout(function() {
-          //canReport = true;
+          canReport = true;
           if(lastArgs) {
             callback.apply({}, lastArgs);
             lastArgs = null;
@@ -99,9 +101,8 @@
   $window.scroll(limit(setScrollPosition));
   $window.resize(limit(setScreenSize));
 */
-  var position;
   $document.mousemove(limit(function(evt) {
-    position = { x: evt.pageX, y: evt.pageY };
+    setCursorPosition(evt.pageX, evt.pageY);
   }));
 
   var $startSession = $('#startSession');
@@ -115,6 +116,7 @@
           $actions.find('#' + key).val(actions[key].href);
           $startSession.append($('<a></a>').attr('href', actions[key].href).html('Join'));
         });
+        id = data.model.id;
         init(data.model.id);
       }
     });

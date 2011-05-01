@@ -24,7 +24,9 @@ var sendViewers = function channelSendViewers(sessionId, message) {
 };
 
 bus.subscribe('sessionStarted', function(sessionStarted) {
-  sessions[sessionStarted.id] = {};
+  sessions[sessionStarted.id] = {
+    viewerIds: []
+  };
 });
 
 bus.subscribe('sessionReady', function(sessionReady) {
@@ -36,7 +38,6 @@ bus.subscribe('sessionJoined', function(sessionJoined) {
       sessionId = sessionJoined.id,
       viewerId = sessionJoined.clientId,
       channel = getChannel(viewerId);
-  session.viewerIds = session.viewerIds || [];
 
   channel.send({
     evt: 'sessionJoined'
@@ -75,10 +76,18 @@ bus.subscribe('sessionContentSet', function(message) {
 });
 
 bus.subscribe('sessionCursorPositionSet', function(message) {
-  sessions[message.id].cursorPosition = {
-    x: message.x,
-    y: message.y
-  };
+  var id = message.id,
+      cursorPosition = {
+        x: message.x,
+        y: message.y
+      };
+  if(sessions[id]) {
+    sessions[id].cursorPosition = cursorPosition;
+    sendViewers(id, {
+      evt: 'sessionCursorPositionSet',
+      data: cursorPosition
+    });
+  }
 });
 
 bus.subscribe('sessionScreenSizeSet', function(message) {
