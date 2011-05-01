@@ -91,17 +91,33 @@ bus.subscribe('sessionCursorPositionSet', function(message) {
 });
 
 bus.subscribe('sessionScreenSizeSet', function(message) {
-  sessions[message.id].dimensions = {
-    height: message.height,
-    width: message.width
-  };
+  var id = message.id,
+      dimensions = {
+        height: message.height,
+        width: message.width
+      };
+  if(sessions[id]) {
+    sessions[id].dimensions = dimensions;
+    sendViewers(id, {
+      evt: 'sessionScreenSizeSet',
+      data: dimensions
+    });
+  }
 });
 
 bus.subscribe('sessionScrollPositionSet', function(message) {
-  sessions[message.id].scrollPosition = {
-    left: message.left,
-    top: message.top
-  };
+  var id = message.id,
+      position = {
+        left: message.left,
+        top: message.top
+      };
+  if(sessions[id]) {
+    sessions[id].scrollPosition = position;
+    sendViewers(id, {
+      evt: 'sessionScrollPositionSet',
+      data: position
+    });
+  }
 });
 
 

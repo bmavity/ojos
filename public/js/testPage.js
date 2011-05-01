@@ -64,14 +64,16 @@
     });
   };
 
-  var setScrollPosition = function setScrollPosition(id) {
-    submitCommand({
-      command: '/sessions/setScrollPosition/' + id,
-      data: {
-        left: $window.scrollLeft(),
-        top: $window.scrollTop()
-      }
-    });
+  var setScrollPosition = function setScrollPosition() {
+    if(id) {
+      submitCommand({
+        command: '/sessions/setScrollPosition/' + id,
+        data: {
+          left: $window.scrollLeft(),
+          top: $window.scrollTop()
+        }
+      });
+    }
   };
 
   var submitCommand = function submitCommand(command) {
@@ -97,8 +99,8 @@
     };
   };
 
-/*
   $window.scroll(limit(setScrollPosition));
+/*
   $window.resize(limit(setScreenSize));
 */
   $document.mousemove(limit(function(evt) {
