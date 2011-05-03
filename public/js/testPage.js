@@ -1,7 +1,7 @@
 (function($) {
-  var socket = new io.Socket('localhost', {
-        port: 8000
-      }),
+  var loc = document.location,
+      port = (loc.port && { port: loc.port }) || {},
+      socket = new io.Socket(loc.hostname, port),
       $window = $(window),
       $document = $(document),
       id;

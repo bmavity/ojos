@@ -1,8 +1,8 @@
 (function($) {
   (function ($sessionJoin, $peekaboo) {
-    var socket = new io.Socket('localhost', {
-          port: 8000
-        }),
+    var loc = document.location,
+        port = (loc.port && { port: loc.port }) || {},
+        socket = new io.Socket(loc.hostname, port),
         handlers = {},
         sessionId,
         $portal = $('<iframe id="peekaboo"></iframe>'),
