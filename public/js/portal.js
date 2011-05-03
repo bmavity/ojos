@@ -54,7 +54,6 @@ $peekaboo.after($portal);
     };
 
     socket.on('message', function(message) {
-    console.log(message);
       var handler = handlers[message.evt];
       if(handler) {
         handler(message.data);
