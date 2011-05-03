@@ -1,6 +1,6 @@
 var connect = require('connect'),
     io = require('socket.io'),
-    injector = require('./caruso').injector,
+    injector = require('caruso').injector,
     bus = require('masstransit').create(),
     auto = require('./auto');
   
