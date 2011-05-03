@@ -197,5 +197,5 @@ socketServer.on('connection', function(client) {
   });
 });
 
-console.log(process.env.port);
-server.listen(parseInt(process.env.port, 10) || 8000);
+console.log(process.env);
+server.listen(parseInt(process.env.PORT, 10) || 8000);
