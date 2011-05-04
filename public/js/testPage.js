@@ -27,6 +27,7 @@
   var setContent = function setContent(sessionId) {
     var $fakeBody = $('body').clone();
     $fakeBody.find('script').remove();
+    $fakeBody.find('#controlPanel').remove();
     var stylesheets = $.makeArray(document.styleSheets).map(function(ss) {
       return $.makeArray(ss.cssRules).map(function(rule) {
         return rule.cssText;
