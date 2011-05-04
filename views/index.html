@@ -64,9 +64,9 @@
   <script src="js/jquery.min.js"></script>
   <script src="socket.io/socket.io.js"></script>
   <script src="js/testPage.js"></script>
-  <a href="javascript:function iprl5(){var d=document,z=d.createElement('scr'+'ipt'),b=d.body,l=d.location;try{if(!b)throw(0);z.setAttribute('src',l.protocol+'//localhost:8000/js/sayHi.js');b.appendChild(z);}catch(e){alert('Please wait until the page has loaded.');}}iprl5();void(0)">Load Script</a>
+  <a href="javascript:(function(){var d=document,z=d.createElement('scr'+'ipt'),b=d.body,l=d.location;try{if(!b)throw(0);z.setAttribute('src',l.protocol+'//localhost:8000/js/sayHi.js');b.appendChild(z);}catch(e){alert('Please wait until the page has loaded.');}}())">Load Script</a>
 <!--
-  javascript:function iprl5(){
+  javascript:(function(){
     var d=document,
         z=d.createElement('scr'+'ipt'),
         b=d.body,
@@ -80,9 +80,7 @@
     catch(e){
       alert('Please wait until the page has loaded.');
     }
-  }
-  iprl5();
-  void(0)
+  }())
 -->
 </body>
 </html>
