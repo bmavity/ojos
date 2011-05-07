@@ -4,7 +4,7 @@ var bus = require('masstransit').create(),
 bus.subscribe('sessionStarted', function(session) {
   var id = session.id;
   viewModels[id] = {
-    sessionName: 'Session name ' + id,
+    sessionName: session.name,
     actions: ['join'],
     info: {
       time: session.time.toString(),

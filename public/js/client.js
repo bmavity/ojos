@@ -20,9 +20,16 @@
  
   var $startSession = $('#startSession');
   $startSession.submit(function(evt) {
+    var $inputs = $startSession.find(':text'),
+        formData = {};
+    $inputs.each(function() {
+      formData[this.name] = this.value;
+    });
+    console.log(formData);
     $.ajax({
       type: $startSession.attr('method'),
       url: $startSession.attr('action'),
+      data: formData,
       success: function(data) {
         var actions = data.actions;
         id = data.model.id;

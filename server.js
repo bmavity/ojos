@@ -81,6 +81,9 @@ var getParams = function(req, routeParams, paramNames) {
     if(routeParams[paramName]) {
       return routeParams[paramName];
     }
+    if(req.body[paramName]) {
+      return req.body[paramName];
+    }
     if(paramName === 'agent') {
       return userAgent.parser(req.headers['user-agent']);
     }
@@ -152,6 +155,7 @@ var testHandler = function(req, res, next) {
 
 server = connect(
   connect.logger(),
+  connect.bodyParser(),
   testHandler,
   connect.static(__dirname + '/public'),
   connect.router(routes)
