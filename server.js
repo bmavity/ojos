@@ -74,14 +74,6 @@ var renderView = function(req, res, resource, params, result) {
   );
 };
 
-var renderPartial = function(req, res, resource, params, result) {
-  injector.env(resource.view, function(err, env) {
-    env.injectPartial(result);
-    res.writeHead(200, { 'Content-Type': 'text/html' });
-    res.end(env.render());
-  });
-};
-
 var getParams = function(req, routeParams, paramNames) {
   var obj = {},
       arr = [];
@@ -126,21 +118,17 @@ var testHandler = function(req, res, next) {
       daActions = {};
   if(result) {
     resource = result.resource;
-    if(req.method.toLowerCase() === 'get' && (result.resource.model || result.resource.view)) {
-      if(resource.model) {
-        params = getParams(req, result.params, result.resource.modelParams);
-        daShit = resource.model.apply(null, params.arr);
-        daShit.actions.forEach(function(action) {
-          daActions[action] = auto.getAction(action, params.obj);
-        });
-        thisIsIt = {
-          model: daShit,
-          actions: daActions
-        };
-        renderView(req, res, resource, params, thisIsIt);
-      } else {
-        renderPartial(req, res, resource, params, {});
-      }
+    if(req.method.toLowerCase() === 'get' && result.resource.model) {
+      params = getParams(req, result.params, result.resource.modelParams);
+      daShit = resource.model.apply(null, params.arr);
+      daShit.actions.forEach(function(action) {
+        daActions[action] = auto.getAction(action, params.obj);
+      });
+      thisIsIt = {
+        model: daShit,
+        actions: daActions
+      };
+      renderView(req, res, resource, params, thisIsIt);
     } else if(req.method.toLowerCase() === 'post' && result.resource.command) {
       params = getParams(req, result.params, result.resource.commandParams);
       daShit = resource.command.handle.apply(null, params.arr);
@@ -153,7 +141,6 @@ var testHandler = function(req, res, next) {
         model: daShit.model,
         actions: daActions
       };
-      console.log(thisIsIt);
       renderJson(req, res, thisIsIt);
     } else {
       next();

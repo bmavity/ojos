@@ -1,6 +1,6 @@
-(function() {
+(function(d) {
   var loadScript = function(url, callback) {
-    var script = document.createElement("script");
+    var script = d.createElement("script");
     if (script.readyState){  //IE
       script.onreadystatechange = function() {
         if (script.readyState == "loaded" || script.readyState == "complete"){
@@ -10,18 +10,28 @@
       };
     } else {  //Others
       script.onload = function() {
-        callback();
+        callback && callback();
       };
     }
 
     script.src = url;
-    document.body.appendChild(script);
+    d.body.appendChild(script);
   };
 
   var loadControlPanel = function() {
     $.ajax('/sessions/controlPanel', {
-      success: function(cont) {
-        $('body').append($(cont));
+      success: function(content) {
+        var head = d.head;
+        /*
+        content.styles.forEach(function(style) {
+          var ss = d.createElement('link');
+          ss.setAttribute('rel', 'stylesheet');
+          ss.setAttribute('href', style);
+          head.appendChild(ss);
+        });
+        */
+        $('body').append($(content));
+        loadScript('/js/client.js');
       }
     });
   };
@@ -31,4 +41,4 @@
   } else {
     loadControlPanel();
   }
-}())
+}(document));

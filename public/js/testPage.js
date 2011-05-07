@@ -3,28 +3,20 @@
       port = (loc.port && { port: loc.port }) || {},
       socket = new io.Socket(loc.hostname, port),
       $window = $(window),
-      $document = $(document),
-      id;
+      $document = $(document);
+      //id;
 
   socket.on('message', function(m) {
     console.log(m);
   });
 
-  var init = function(id) {
-    socket.connect();
-    readySession(id);
-    setContent(id);
-    setScreenSize(id);
-    setScrollPosition(id);
-  };
-
-  var readySession = function(sessionId) {
+  var readySession = function() {
     submitCommand({
-      command: '/sessions/ready/' + sessionId
+      command: '/sessions/ready/' + id
     });
   };
 
-  var setContent = function setContent(sessionId) {
+  var setContent = function setContent() {
     var $fakeBody = $('body').clone();
     $fakeBody.find('script').remove();
     $fakeBody.find('#controlPanel').remove();
@@ -35,7 +27,7 @@
     });
 
     submitCommand({
-      command: '/sessions/setContent/' + sessionId,
+      command: '/sessions/setContent/' + id,
       data: {
         content: $fakeBody.html(),
         styles: stylesheets
@@ -107,25 +99,10 @@
   $document.mousemove(limit(function(evt) {
     setCursorPosition(evt.pageX, evt.pageY);
   }));
-
-  var $startSession = $('#startSession');
-  $startSession.submit(function(evt) {
-    $.ajax({
-      type: $startSession.attr('method'),
-      url: $startSession.attr('action'),
-      success: function(data) {
-        var actions = data.actions;
-        Object.keys(actions).forEach(function(key) {
-          $actions.find('#' + key).val(actions[key].href);
-          $startSession.append($('<a></a>').attr('href', actions[key].href).html('Join'));
-        });
-        id = data.model.id;
-        init(data.model.id);
-      }
-    });
-    evt.preventDefault();
-  });
-
-  var $actions = $('#actions');
+  socket.connect();
+  readySession();
+  setContent();
+  setScreenSize();
+  setScrollPosition();
 })(jQuery);
 
