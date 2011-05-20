@@ -2,7 +2,7 @@
   "name": "nightswatch",
   "version": "0.0.0",
   "dependencies": {
-    "caruso": "0.0.1",
+    "caruso": "0.0.2",
     "connect": "1.2.1",
     "masstransit": "0.1.1",
     "node-uuid": "1.1.0",
