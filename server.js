@@ -133,21 +133,23 @@ var executeHandlerFn = function(req, resultParams, handler) {
   };
 };
 
-var testHandler = function(req, res, next) {
-  var result = wotan.getResource(req.url),
-      resource,
+var h = require('./httpTransport');
+var handleResourceRequest = function(req, res) {
+  var resourceRequest = h.createResourceRequest(req),
+      result = wotan.getResource(req.url),
+      resource = result.resource,
       executedHandler;
-  if(result) {
-    resource = result.resource;
-    if(req.method.toLowerCase() === 'get' && resource.model) {
-      executedHandler = executeHandlerFn(req, result.params, resource.model);
-      renderView(req, res, resource, executedHandler.params, executedHandler);
-    } else if(req.method.toLowerCase() === 'post' && resource.command) {
-      executedHandler = executeHandlerFn(req, result.params, resource.command);
-      renderJson(req, res, executedHandler);
-    } else {
-      next();
-    }
+  if(resourceRequest.query) {
+    executedHandler = executeHandlerFn(req, result.params, resource.model);
+    renderView(req, res, resource, executedHandler.params, executedHandler);
+  } else {
+    executedHandler = executeHandlerFn(req, result.params, resource.command);
+    renderJson(req, res, executedHandler);
+  }
+};
+var testHandler = function(req, res, next) {
+  if(h.canHandleRequest(req)) {
+    handleResourceRequest(req, res);
   } else {
     next();
   }
