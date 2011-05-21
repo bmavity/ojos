@@ -1,13 +1,18 @@
 var connect = require('connect'),
     io = require('socket.io'),
     injector = require('caruso').injector,
+    path = require('path'),
     bus = require('masstransit').create(),
-    auto = require('./auto');
+    wotan = require('wotan');
   
 bus.init({
   transport: 'memory',
   host: 'localhost',
   queueName: 'sessionStarted'
+});
+
+wotan.configure({
+  resourceDir: path.join(__dirname, '/resources')
 });
 
 var sessionTracker = require('./sessionTracker'),
@@ -54,9 +59,9 @@ var renderView = function(req, res, resource, params, result) {
   finishAll(
     Object.keys(result.actions).map(function(action) {
       return function(onComplete) {
-        var res2 = auto.getResource(action),
+        var res2 = wotan.getResource(action),
             data = res2.model.apply(null, params.arr);
-        injector.env(res2.view, function(err, env) {
+        injector.env(res2.view.path, function(err, env) {
           env.injectPartial(data);
           actionModels[action] = {
             html: env.renderPartial()
@@ -66,7 +71,7 @@ var renderView = function(req, res, resource, params, result) {
       }
     }),
     function() {
-      render(res, resource.view, {
+      render(res, resource.view.path, {
         model: result.model,
         actions: actionModels
       });
@@ -113,38 +118,33 @@ var routes = function routes(app) {
   });
 };
 
-var testHandler = function(req, res, next) {
-  var result = auto.getResource(req.url),
-      resource,
-      params,
-      thisIsIt,
+var executeHandlerFn = function(req, resultParams, handler) {
+  var params = getParams(req, resultParams, handler.params),
+      daShit = handler.apply(null, params.arr),
       daActions = {};
+  daShit.actions.forEach(function(action) {
+    var thisIsCrap = (req.method.toLowerCase() === 'post' ? daShit.model : params.obj);
+    daActions[action] = wotan.getAction(action, thisIsCrap);
+  });
+  return {
+    model: daShit,
+    actions: daActions,
+    params: params
+  };
+};
+
+var testHandler = function(req, res, next) {
+  var result = wotan.getResource(req.url),
+      resource,
+      executedHandler;
   if(result) {
     resource = result.resource;
-    if(req.method.toLowerCase() === 'get' && result.resource.model) {
-      params = getParams(req, result.params, result.resource.modelParams);
-      daShit = resource.model.apply(null, params.arr);
-      daShit.actions.forEach(function(action) {
-        daActions[action] = auto.getAction(action, params.obj);
-      });
-      thisIsIt = {
-        model: daShit,
-        actions: daActions
-      };
-      renderView(req, res, resource, params, thisIsIt);
-    } else if(req.method.toLowerCase() === 'post' && result.resource.command) {
-      params = getParams(req, result.params, result.resource.commandParams);
-      daShit = resource.command.handle.apply(null, params.arr);
-      if(daShit.actions) {
-        daShit.actions.forEach(function(action) {
-          daActions[action] = auto.getAction(action, daShit.model);
-        });
-      }
-      thisIsIt = {
-        model: daShit.model,
-        actions: daActions
-      };
-      renderJson(req, res, thisIsIt);
+    if(req.method.toLowerCase() === 'get' && resource.model) {
+      executedHandler = executeHandlerFn(req, result.params, resource.model);
+      renderView(req, res, resource, executedHandler.params, executedHandler);
+    } else if(req.method.toLowerCase() === 'post' && resource.command) {
+      executedHandler = executeHandlerFn(req, result.params, resource.command);
+      renderJson(req, res, executedHandler);
     } else {
       next();
     }
@@ -155,6 +155,7 @@ var testHandler = function(req, res, next) {
 
 server = connect(
   connect.logger(),
+  require('wagner').connect({ basePath: __dirname + '/public/js/' }),
   connect.bodyParser(),
   testHandler,
   connect.static(__dirname + '/public'),
@@ -192,7 +193,7 @@ socketServer.on('connection', function(client) {
   };
 
   client.on('message', function(message) {
-    var routeParseResult = auto.getResource(message.command),
+    var routeParseResult = wotan.getResource(message.command),
         resourceOperation = routeParseResult.resource,
         routeParams = routeParseResult.params,
         params = getWebSocketParams(message.data, routeParams, resourceOperation.commandParams);
