@@ -142,39 +142,33 @@ socketServer = io.listen(server);
 
 notifier.init(socketServer);
 
+var w = require('./webSocketTransport');
 socketServer.on('connection', function(client) {
   var channelId = client.sessionId;
 
-  var getWebSocketParams = function(webSocketParams, routeParams, resourceOperationParams) {
-    var obj = {},
-        arr = [];
-    var getVal = function(paramName) {
-      if(paramName === 'clientId') {
-        return channelId;
-      }
-      if(routeParams[paramName]) {
-        return routeParams[paramName];
-      }
-      return webSocketParams[paramName];
-    };
-
-    resourceOperationParams.forEach(function(paramName) {
-      var val = getVal(paramName);
-      obj[paramName] = val;
-      arr.push(val);
-    });
-    return {
-      arr: arr,
-      obj: obj
-    }; 
-  };
-
   client.on('message', function(message) {
-    var routeParseResult = wotan.getResource(message.command),
-        resourceOperation = routeParseResult.resource,
-        routeParams = routeParseResult.params,
-        params = getWebSocketParams(message.data, routeParams, resourceOperation.command.params);
-    resourceOperation.command.apply(null, params.arr);
+    var webSocketRequest = {
+          clientId: channelId,
+          message: message
+        },
+        resourceRequest,
+        params,
+        query,
+        command,
+        resource;
+    if(w.canHandleRequest(webSocketRequest)) {
+      resourceRequest = w.createResourceRequest(webSocketRequest);
+      params = resourceRequest.params;
+      query = resourceRequest.query;
+      if(query) {
+        resource = wotan.getResource(query).resource;
+        resource.model.apply(null, params.arr);
+      } else {
+        command = resourceRequest.command;
+        resource = wotan.getResource(command).resource;
+        resource.command.apply(null, params.arr);
+      }
+    }
   });
 });
 
