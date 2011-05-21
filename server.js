@@ -79,31 +79,6 @@ var renderView = function(req, res, resource, params, result) {
   );
 };
 
-var getParams = function(req, routeParams, paramNames) {
-  var obj = {},
-      arr = [];
-  var getVal = function(paramName) {
-    if(routeParams[paramName]) {
-      return routeParams[paramName];
-    }
-    if(req.body[paramName]) {
-      return req.body[paramName];
-    }
-    if(paramName === 'agent') {
-      return userAgent.parser(req.headers['user-agent']);
-    }
-  };
-  paramNames.forEach(function(paramName) {
-    var val = getVal(paramName);
-    obj[paramName] = val;
-    arr.push(val);
-  });
-  return {
-    arr: arr,
-    obj: obj
-  };
-};
-
 var routes = function routes(app) {
   app.get('/', function(req, res) {
     render(res, __dirname + '/views/index.html', {
@@ -118,9 +93,8 @@ var routes = function routes(app) {
   });
 };
 
-var executeHandlerFn = function(req, resultParams, handler) {
-  var params = getParams(req, resultParams, handler.params),
-      daShit = handler.apply(null, params.arr),
+var executeHandlerFn = function(req, params, handler) {
+  var daShit = handler.apply(null, params.arr),
       daActions = {};
   daShit.actions.forEach(function(action) {
     var thisIsCrap = (req.method.toLowerCase() === 'post' ? daShit.model : params.obj);
@@ -139,11 +113,12 @@ var handleResourceRequest = function(req, res) {
       result = wotan.getResource(req.url),
       resource = result.resource,
       executedHandler;
+      console.log(resourceRequest);
   if(resourceRequest.query) {
-    executedHandler = executeHandlerFn(req, result.params, resource.model);
+    executedHandler = executeHandlerFn(req, resourceRequest.params, resource.model);
     renderView(req, res, resource, executedHandler.params, executedHandler);
   } else {
-    executedHandler = executeHandlerFn(req, result.params, resource.command);
+    executedHandler = executeHandlerFn(req, resourceRequest.params, resource.command);
     renderJson(req, res, executedHandler);
   }
 };
