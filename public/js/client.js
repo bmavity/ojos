@@ -31,8 +31,9 @@
       url: $startSession.attr('action'),
       data: formData,
       success: function(data) {
-        var actions = data.actions;
-        id = data.model.id;
+        var actions = data.actions,
+            model = data.model.model;
+        id = model.id;
         Object.keys(actions).forEach(function(key) {
           var url = actions[key].href,
               $url = $('#url');

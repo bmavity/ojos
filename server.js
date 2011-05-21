@@ -196,8 +196,8 @@ socketServer.on('connection', function(client) {
     var routeParseResult = wotan.getResource(message.command),
         resourceOperation = routeParseResult.resource,
         routeParams = routeParseResult.params,
-        params = getWebSocketParams(message.data, routeParams, resourceOperation.commandParams);
-    resourceOperation.command.handle.apply(null, params.arr);
+        params = getWebSocketParams(message.data, routeParams, resourceOperation.command.params);
+    resourceOperation.command.apply(null, params.arr);
   });
 });
 
