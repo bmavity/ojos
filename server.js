@@ -118,7 +118,6 @@ var handleResourceRequest = function(httpRequest) {
       executedHandler,
       req = httpRequest.req,
       res = httpRequest.res;
-      console.log(resourceRequest);
   if(query) {
     resource = wotan.getResource(query).resource;
     executedHandler = resource.model.apply(null, params.arr);
@@ -155,6 +154,21 @@ socketServer = io.listen(server);
 notifier.init(socketServer);
 
 var w = require('./webSocketTransport');
+var webSocketHandleResourceRequest = function(webSocketRequest) {
+  var resourceRequest = w.createResourceRequest(webSocketRequest),
+      params = resourceRequest.params,
+      query = resourceRequest.query,
+      command,
+      resource;
+    if(query) {
+      resource = wotan.getResource(query).resource;
+      resource.model.apply(null, params.arr);
+    } else {
+      command = resourceRequest.command;
+      resource = wotan.getResource(command).resource;
+      resource.command.apply(null, params.arr);
+    }
+};
 socketServer.on('connection', function(client) {
   var channelId = client.sessionId;
 
@@ -169,17 +183,7 @@ socketServer.on('connection', function(client) {
         command,
         resource;
     if(w.canHandleRequest(webSocketRequest)) {
-      resourceRequest = w.createResourceRequest(webSocketRequest);
-      params = resourceRequest.params;
-      query = resourceRequest.query;
-      if(query) {
-        resource = wotan.getResource(query).resource;
-        resource.model.apply(null, params.arr);
-      } else {
-        command = resourceRequest.command;
-        resource = wotan.getResource(command).resource;
-        resource.command.apply(null, params.arr);
-      }
+      webSocketHandleResourceRequest(webSocketRequest);
     }
   });
 });
