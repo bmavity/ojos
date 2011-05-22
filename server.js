@@ -108,36 +108,19 @@ var executeHandlerFn = function(resourceRequest, daShit) {
   };
 };
 
-var h = require('./httpTransport');
-var handleResourceRequest = function(httpRequest) {
-  var resourceRequest = h.createResourceRequest(httpRequest),
+var handleResourceRequest = function(transport, request, callback) {
+  var resourceRequest = transport.createResourceRequest(request),
       params = resourceRequest.params,
       query = resourceRequest.query,
-      command,
-      resource,
-      executedHandler,
-      req = httpRequest.req,
-      res = httpRequest.res;
+      command = resourceRequest.command,
+      resource;
   if(query) {
     resource = wotan.getResource(query).resource;
-    executedHandler = resource.model.apply(null, params.arr);
-    renderView(req, res, resource, executeHandlerFn(resourceRequest, executedHandler));
-  } else {
-    command = resourceRequest.command;
-    resource = wotan.getResource(command).resource;
-    executedHandler = resource.command.apply(null, params.arr);
-    renderJson(req, res, executeHandlerFn(resourceRequest, executedHandler));
+    callback(resourceRequest, resource.model.apply(null, params.arr));
   }
-};
-var testHandler = function(req, res, next) {
-  var httpRequest = {
-        req: req,
-        res: res
-      };
-  if(h.canHandleRequest(httpRequest)) {
-    handleResourceRequest(httpRequest);
-  } else {
-    next();
+  if(command) {
+    resource = wotan.getResource(command).resource;
+    callback(resourceRequest, resource.command.apply(null, params.arr));
   }
 };
 
@@ -145,7 +128,18 @@ server = connect(
   connect.logger(),
   require('wagner').connect({ basePath: __dirname + '/public/js/' }),
   connect.bodyParser(),
-  testHandler,
+  require('./connect').handler(function(httpRequest) {
+    var req = httpRequest.req,
+        res = httpRequest.res;
+    handleResourceRequest(require('./httpTransport'), httpRequest, function(resourceRequest, executedHandler) {
+      if(resourceRequest.query) {
+        renderView(req, res, wotan.getResource(resourceRequest.query).resource, executeHandlerFn(resourceRequest, executedHandler));
+      }
+      if(resourceRequest.command) {
+        renderJson(req, res, executeHandlerFn(resourceRequest, executedHandler));
+      }
+    });
+  }),
   connect.static(__dirname + '/public'),
   connect.router(routes)
 );
@@ -158,13 +152,13 @@ var webSocketHandleResourceRequest = function(webSocketRequest) {
   var resourceRequest = w.createResourceRequest(webSocketRequest),
       params = resourceRequest.params,
       query = resourceRequest.query,
-      command,
+      command = resourceRequest.command,
       resource;
     if(query) {
       resource = wotan.getResource(query).resource;
       resource.model.apply(null, params.arr);
-    } else {
-      command = resourceRequest.command;
+    }
+    if(command) {
       resource = wotan.getResource(command).resource;
       resource.command.apply(null, params.arr);
     }
