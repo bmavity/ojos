@@ -54,8 +54,9 @@ var renderJson = function(req, res, result) {
   res.end(JSON.stringify(result));
 };
 
-var renderView = function(req, res, resource, params, result) {
-  var actionModels = {};
+var renderView = function(req, res, resource, result) {
+  var params = result.params,
+      actionModels = {};
   finishAll(
     Object.keys(result.actions).map(function(action) {
       return function(onComplete) {
@@ -93,11 +94,11 @@ var routes = function routes(app) {
   });
 };
 
-var executeHandlerFn = function(req, params, handler) {
-  var daShit = handler.apply(null, params.arr),
+var executeHandlerFn = function(resourceRequest, daShit) {
+  var params = resourceRequest.params,
       daActions = {};
   daShit.actions.forEach(function(action) {
-    var thisIsCrap = (req.method.toLowerCase() === 'post' ? daShit.model : params.obj);
+    var thisIsCrap = resourceRequest.command ? daShit.model : params.obj;
     daActions[action] = wotan.getAction(action, thisIsCrap);
   });
   return {
@@ -108,23 +109,34 @@ var executeHandlerFn = function(req, params, handler) {
 };
 
 var h = require('./httpTransport');
-var handleResourceRequest = function(req, res) {
-  var resourceRequest = h.createResourceRequest(req),
-      result = wotan.getResource(req.url),
-      resource = result.resource,
-      executedHandler;
+var handleResourceRequest = function(httpRequest) {
+  var resourceRequest = h.createResourceRequest(httpRequest),
+      params = resourceRequest.params,
+      query = resourceRequest.query,
+      command,
+      resource,
+      executedHandler,
+      req = httpRequest.req,
+      res = httpRequest.res;
       console.log(resourceRequest);
-  if(resourceRequest.query) {
-    executedHandler = executeHandlerFn(req, resourceRequest.params, resource.model);
-    renderView(req, res, resource, executedHandler.params, executedHandler);
+  if(query) {
+    resource = wotan.getResource(query).resource;
+    executedHandler = resource.model.apply(null, params.arr);
+    renderView(req, res, resource, executeHandlerFn(resourceRequest, executedHandler));
   } else {
-    executedHandler = executeHandlerFn(req, resourceRequest.params, resource.command);
-    renderJson(req, res, executedHandler);
+    command = resourceRequest.command;
+    resource = wotan.getResource(command).resource;
+    executedHandler = resource.command.apply(null, params.arr);
+    renderJson(req, res, executeHandlerFn(resourceRequest, executedHandler));
   }
 };
 var testHandler = function(req, res, next) {
-  if(h.canHandleRequest(req)) {
-    handleResourceRequest(req, res);
+  var httpRequest = {
+        req: req,
+        res: res
+      };
+  if(h.canHandleRequest(httpRequest)) {
+    handleResourceRequest(httpRequest);
   } else {
     next();
   }

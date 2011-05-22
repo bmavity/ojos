@@ -1,8 +1,9 @@
 var wotan = require('wotan'),
     paramHandlerFactories = [];
 
-var canHandleRequest = function(req) {
-  var result = wotan.getResource(req.url),
+var canHandleRequest = function(httpRequest) {
+  var req = httpRequest.req,
+      result = wotan.getResource(req.url),
       resource = result && result.resource,
       method = req.method.toLowerCase();
   if(!result) return false;
@@ -10,8 +11,9 @@ var canHandleRequest = function(req) {
   return (method === 'post' && resource.command);
 };
 
-var createResourceRequest = function(req) {
-  var method = req.method.toLowerCase(),
+var createResourceRequest = function(httpRequest) {
+  var req = httpRequest.req,
+      method = req.method.toLowerCase(),
       resource = wotan.getResource(req.url).resource;
   if(method === 'get') {
     return {
