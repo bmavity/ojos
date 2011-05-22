@@ -147,22 +147,6 @@ socketServer = io.listen(server);
 
 notifier.init(socketServer);
 
-var w = require('./webSocketTransport');
-var webSocketHandleResourceRequest = function(webSocketRequest) {
-  var resourceRequest = w.createResourceRequest(webSocketRequest),
-      params = resourceRequest.params,
-      query = resourceRequest.query,
-      command = resourceRequest.command,
-      resource;
-    if(query) {
-      resource = wotan.getResource(query).resource;
-      resource.model.apply(null, params.arr);
-    }
-    if(command) {
-      resource = wotan.getResource(command).resource;
-      resource.command.apply(null, params.arr);
-    }
-};
 socketServer.on('connection', function(client) {
   var channelId = client.sessionId;
 
@@ -171,13 +155,9 @@ socketServer.on('connection', function(client) {
           clientId: channelId,
           message: message
         },
-        resourceRequest,
-        params,
-        query,
-        command,
-        resource;
-    if(w.canHandleRequest(webSocketRequest)) {
-      webSocketHandleResourceRequest(webSocketRequest);
+        transport = require('./webSocketTransport');
+    if(transport.canHandleRequest(webSocketRequest)) {
+      handleResourceRequest(transport, webSocketRequest, function() {});
     }
   });
 });
