@@ -110,22 +110,22 @@ var executeHandlerFn = function(resourceRequest, daShit) {
 server = connect(
   connect.logger(),
   require('wagner').connect({ basePath: __dirname + '/public/js/' }),
-  connect.bodyParser(),
-  wotan.connect(function(httpRequest) {
-    var req = httpRequest.req,
-        res = httpRequest.res;
-    wotan.handleResourceRequest('http', httpRequest, function(resourceRequest, executedHandler) {
-      if(resourceRequest.query) {
-        renderView(req, res, wotan.getResource(resourceRequest.query).resource, executeHandlerFn(resourceRequest, executedHandler));
-      }
-      if(resourceRequest.command) {
-        renderJson(req, res, executeHandlerFn(resourceRequest, executedHandler));
-      }
-    });
-  }),
-  connect.static(__dirname + '/public'),
-  connect.router(routes)
+  connect.bodyParser()
 );
+wotan.initializeTransport('http', server)(function(httpRequest) {
+  var req = httpRequest.req,
+      res = httpRequest.res;
+  wotan.handleResourceRequest('http', httpRequest, function(resourceRequest, executedHandler) {
+    if(resourceRequest.query) {
+      renderView(req, res, wotan.getResource(resourceRequest.query).resource, executeHandlerFn(resourceRequest, executedHandler));
+    }
+    if(resourceRequest.command) {
+      renderJson(req, res, executeHandlerFn(resourceRequest, executedHandler));
+    }
+  });
+});
+server.use(connect.static(__dirname + '/public'));
+server.use(connect.router(routes));
 
 socketServer = io.listen(server);
 wotan.initializeTransport('webSocket', socketServer);
