@@ -16,7 +16,6 @@ wotan.configure({
 });
 
 var sessionTracker = require('./sessionTracker'),
-    userAgent = require('useragent'),
     server,
     notifier = require('./notifier'),
     socketServer;
@@ -108,30 +107,14 @@ var executeHandlerFn = function(resourceRequest, daShit) {
   };
 };
 
-var handleResourceRequest = function(transport, request, callback) {
-  var resourceRequest = transport.createResourceRequest(request),
-      params = resourceRequest.params,
-      query = resourceRequest.query,
-      command = resourceRequest.command,
-      resource;
-  if(query) {
-    resource = wotan.getResource(query).resource;
-    callback(resourceRequest, resource.model.apply(null, params.arr));
-  }
-  if(command) {
-    resource = wotan.getResource(command).resource;
-    callback(resourceRequest, resource.command.apply(null, params.arr));
-  }
-};
-
 server = connect(
   connect.logger(),
   require('wagner').connect({ basePath: __dirname + '/public/js/' }),
   connect.bodyParser(),
-  require('./connect').handler(function(httpRequest) {
+  wotan.connect(function(httpRequest) {
     var req = httpRequest.req,
         res = httpRequest.res;
-    handleResourceRequest(require('./httpTransport'), httpRequest, function(resourceRequest, executedHandler) {
+    wotan.handleResourceRequest('http', httpRequest, function(resourceRequest, executedHandler) {
       if(resourceRequest.query) {
         renderView(req, res, wotan.getResource(resourceRequest.query).resource, executeHandlerFn(resourceRequest, executedHandler));
       }
@@ -145,20 +128,7 @@ server = connect(
 );
 
 socketServer = io.listen(server);
-socketServer.on('connection', function(client) {
-  var channelId = client.sessionId;
-
-  client.on('message', function(message) {
-    var webSocketRequest = {
-          clientId: channelId,
-          message: message
-        },
-        transport = require('./webSocketTransport');
-    if(transport.canHandleRequest(webSocketRequest)) {
-      handleResourceRequest(transport, webSocketRequest, function() {});
-    }
-  });
-});
+wotan.initializeTransport('webSocket', socketServer);
 notifier.init(socketServer);
 
 server.listen(parseInt(process.env.app_port, 10) || 8000);
