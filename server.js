@@ -143,10 +143,8 @@ server = connect(
   connect.static(__dirname + '/public'),
   connect.router(routes)
 );
+
 socketServer = io.listen(server);
-
-notifier.init(socketServer);
-
 socketServer.on('connection', function(client) {
   var channelId = client.sessionId;
 
@@ -161,5 +159,6 @@ socketServer.on('connection', function(client) {
     }
   });
 });
+notifier.init(socketServer);
 
 server.listen(parseInt(process.env.app_port, 10) || 8000);
