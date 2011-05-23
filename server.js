@@ -3,7 +3,8 @@ var connect = require('connect'),
     injector = require('caruso').injector,
     path = require('path'),
     bus = require('masstransit').create(),
-    wotan = require('wotan');
+    wotan = require('wotan'),
+    mav = require('./mav');
   
 bus.init({
   transport: 'memory',
@@ -19,20 +20,6 @@ var sessionTracker = require('./sessionTracker'),
     server,
     notifier = require('./notifier'),
     socketServer;
-
-var finishAll = function(fns, finisher) {
-  var totalCount = fns.length,
-      completeCount = 0;
-  var fnDone = function() {
-    completeCount += 1;
-    if(completeCount === totalCount) {
-      finisher();
-    }
-  };
-  fns.forEach(function(fn) {
-    fn(fnDone);
-  });
-};
 
 var inject = function(fileName, data, callback) {
   injector.env(fileName, function(err, env) {
@@ -56,7 +43,7 @@ var renderJson = function(req, res, result) {
 var renderView = function(req, res, resource, result) {
   var params = result.params,
       actionModels = {};
-  finishAll(
+  mav.finishAll(
     Object.keys(result.actions).map(function(action) {
       return function(onComplete) {
         var res2 = wotan.getResource(action),
@@ -107,12 +94,7 @@ var executeHandlerFn = function(resourceRequest, daShit) {
   };
 };
 
-server = connect(
-  connect.logger(),
-  require('wagner').connect({ basePath: __dirname + '/public/js/' }),
-  connect.bodyParser()
-);
-wotan.initializeTransport('http', server)(function(httpRequest) {
+var stupidHandler = function(httpRequest) {
   var req = httpRequest.req,
       res = httpRequest.res;
   wotan.handleResourceRequest('http', httpRequest, function(resourceRequest, executedHandler) {
@@ -123,7 +105,14 @@ wotan.initializeTransport('http', server)(function(httpRequest) {
       renderJson(req, res, executeHandlerFn(resourceRequest, executedHandler));
     }
   });
-});
+};
+
+server = connect(
+  connect.logger(),
+  require('wagner').connect({ basePath: __dirname + '/public/js/' }),
+  connect.bodyParser()
+);
+wotan.initializeTransport('http', server)(stupidHandler);
 server.use(connect.static(__dirname + '/public'));
 server.use(connect.router(routes));
 
