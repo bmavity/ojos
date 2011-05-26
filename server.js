@@ -39,7 +39,10 @@ server.use(connect.logger());
 server.use(require('connect-conneg').acceptedTypes);
 server.use(require('wagner').connect({ basePath: __dirname + '/public/js/' }));
 server.use(connect.bodyParser());
-wotan.initializeTransport('http', server)(vc.stupidHandler);
+wotan.initializeTransport('http', {
+  server: server,
+  viewEngine: vc
+});
 server.use(connect.static(__dirname + '/public'));
 server.use(connect.router(routes));
 

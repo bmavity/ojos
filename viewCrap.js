@@ -61,19 +61,8 @@ var executeHandlerFn = function(resourceRequest, daShit) {
   };
 };
 
-var stupidHandler = function(httpRequest) {
-  var req = httpRequest.req,
-      res = httpRequest.res;
-  wotan.handleResourceRequest('http', httpRequest, function(resourceRequest, executedHandler) {
-    if(resourceRequest.query) {
-      renderView(req, res, wotan.getResource(resourceRequest.query).resource, executeHandlerFn(resourceRequest, executedHandler));
-    }
-    if(resourceRequest.command) {
-      renderJson(req, res, executeHandlerFn(resourceRequest, executedHandler));
-    }
-  });
-};
 
-
+exports.executeHandlerFn = executeHandlerFn;
 exports.render = render;
-exports.stupidHandler = stupidHandler;
+exports.renderJson = renderJson;
+exports.renderView = renderView;
