@@ -16,12 +16,7 @@ var render = function(res, fileName, data) {
   });
 };
 
-var renderJson = function(req, res, result) {
-  res.writeHead(200, { 'Content-Type': 'application/json' });
-  res.end(JSON.stringify(result));
-};
-
-var renderView = function(req, res, resource, result) {
+var renderView = function(res, resource, result) {
   var params = result.params,
       actionModels = {};
   mav.finishAll(
@@ -64,5 +59,4 @@ var executeHandlerFn = function(resourceRequest, daShit) {
 
 exports.executeHandlerFn = executeHandlerFn;
 exports.render = render;
-exports.renderJson = renderJson;
 exports.renderView = renderView;
