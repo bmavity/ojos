@@ -16,7 +16,7 @@ var render = function(res, fileName, data) {
   });
 };
 
-var renderView = function(res, resource, result) {
+var renderView = function(resource, result, callback) {
   var params = result.params,
       actionModels = {};
   mav.finishAll(
@@ -34,10 +34,11 @@ var renderView = function(res, resource, result) {
       }
     }),
     function() {
-      render(res, resource.view.path, {
+      var data = {
         model: result.model,
         actions: actionModels
-      });
+      };
+      inject(resource.view.path, data, callback);
     }
   );
 };
