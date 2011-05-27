@@ -21,8 +21,23 @@ var sessionTracker = require('./sessionTracker'),
     socketServer;
 
 var routes = function routes(app) {
+  var injector = require('caruso').injector;
+  var inject = function(fileName, data, callback) {
+    injector.env(fileName, function(err, env) {
+      env.inject(data);
+      callback(env.render());
+    });
+  };
+
+  var render = function(res, fileName, data) {
+    inject(fileName, data, function(html) {
+      res.writeHead(200, { 'Content-Type': 'text/html' });
+      res.end(html);
+    });
+  };
+
   app.get('/', function(req, res) {
-    vc.render(res, __dirname + '/views/index.html', {
+    render(res, __dirname + '/views/index.html', {
       title: 'this is a test of the emergency broadcast system',
       navLinks: [
         { href: '/', html: 'home' },

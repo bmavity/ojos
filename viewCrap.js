@@ -1,20 +1,6 @@
 var wotan = require('wotan'),
     injector = require('caruso').injector,
     mav = require('./mav');
-    
-var inject = function(fileName, data, callback) {
-  injector.env(fileName, function(err, env) {
-    env.inject(data);
-    callback(env.render());
-  });
-};
-
-var render = function(res, fileName, data) {
-  inject(fileName, data, function(html) {
-    res.writeHead(200, { 'Content-Type': 'text/html' });
-    res.end(html);
-  });
-};
 
 var renderView = function(resource, result, callback) {
   var params = result.params,
@@ -38,7 +24,10 @@ var renderView = function(resource, result, callback) {
         model: result.model,
         actions: actionModels
       };
-      inject(resource.view.path, data, callback);
+      injector.env(resource.view.path, function(err, env) {
+        env.inject(data);
+        callback(env.render());
+      });      
     }
   );
 };
@@ -59,5 +48,4 @@ var executeHandlerFn = function(resourceRequest, daShit) {
 
 
 exports.executeHandlerFn = executeHandlerFn;
-exports.render = render;
 exports.renderView = renderView;
