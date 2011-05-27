@@ -9,7 +9,7 @@ var renderView = function(resource, result, callback) {
     Object.keys(result.actions).map(function(action) {
       return function(onComplete) {
         var res2 = wotan.getResource(action),
-            data = res2.model.apply(null, params.arr);
+            data = res2.query.apply(null, params.arr);
         injector.env(res2.view.path, function(err, env) {
           env.injectPartial(data);
           actionModels[action] = {
