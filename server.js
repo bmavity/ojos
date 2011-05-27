@@ -3,7 +3,9 @@ var connect = require('connect'),
     path = require('path'),
     bus = require('masstransit').create(),
     wotan = require('wotan'),
-    vc = require('./viewCrap');
+    vc = require('./viewCrap'),
+    server,
+    socketServer;
   
 bus.init({
   transport: 'memory',
@@ -16,9 +18,7 @@ wotan.configure({
 });
 
 var sessionTracker = require('./sessionTracker'),
-    server,
-    notifier = require('./notifier'),
-    socketServer;
+    notifier = require('./notifier');
 
 var routes = function routes(app) {
   var injector = require('caruso').injector;
