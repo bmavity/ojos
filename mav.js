@@ -12,5 +12,12 @@ var finishAll = function(fns, finisher) {
   });
 };
 
+var objMap = function(obj, callback) {
+  return Object.keys(obj).map(function(key) {
+    return callback(key, obj[key]);
+  });
+};
+
 
 exports.finishAll = finishAll;
+exports.objMap = objMap;
