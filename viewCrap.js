@@ -2,17 +2,14 @@ var wotan = require('wotan'),
     injector = require('caruso').injector,
     mav = require('./mav');
 
-var renderView = function(resource, result, callback) {
-  var params = result.params,
-      actionModels = {};
+var renderView = function(viewTree, callback) {
+  var renderedActions = {};
   mav.finishAll(
-    Object.keys(result.actions).map(function(action) {
+    mav.objMap(viewTree.childViews, function(actionName, childView) {
       return function(onComplete) {
-        var res2 = wotan.getResource(action),
-            data = res2.query.apply(null, params.arr);
-        injector.env(res2.view.path, function(err, env) {
-          env.injectPartial(data);
-          actionModels[action] = {
+        injector.env(childView.view.path, function(err, env) {
+          env.injectPartial(childView.data);
+          renderedActions[actionName] = {
             html: env.renderPartial()
           }
           onComplete();
@@ -21,10 +18,10 @@ var renderView = function(resource, result, callback) {
     }),
     function() {
       var data = {
-        model: result.model,
-        actions: actionModels
+        model: viewTree.data,
+        actions: renderedActions
       };
-      injector.env(resource.view.path, function(err, env) {
+      injector.env(viewTree.view.path, function(err, env) {
         env.inject(data);
         callback(env.render());
       });      
