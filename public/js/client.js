@@ -20,7 +20,7 @@
  
   var $startSession = $('#startSession');
   $startSession.submit(function(evt) {
-    var $inputs = $startSession.find(':text'),
+    var $inputs = $startSession.find(':text, :hidden'),
         formData = {};
     $inputs.each(function() {
       formData[this.name] = this.value;
@@ -32,7 +32,7 @@
       data: formData,
       success: function(data) {
         var actions = data.actions,
-            model = data.model.model;
+            model = data.model;
         id = model.id;
         Object.keys(actions).forEach(function(key) {
           var url = actions[key].href,
