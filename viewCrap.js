@@ -1,5 +1,4 @@
-var wotan = require('wotan'),
-    injector = require('caruso').injector,
+var injector = require('caruso').injector,
     mav = require('./mav');
 
 var renderView = function(viewTree, callback) {
@@ -29,20 +28,5 @@ var renderView = function(viewTree, callback) {
   );
 };
 
-var executeHandlerFn = function(resourceRequest, daShit) {
-  var params = resourceRequest.params,
-      daActions = {};
-  daShit.actions.forEach(function(action) {
-    var thisIsCrap = resourceRequest.command ? daShit.model : params.obj;
-    daActions[action] = wotan.getAction(action, thisIsCrap);
-  });
-  return {
-    model: daShit,
-    actions: daActions,
-    params: params
-  };
-};
 
-
-exports.executeHandlerFn = executeHandlerFn;
 exports.renderView = renderView;
