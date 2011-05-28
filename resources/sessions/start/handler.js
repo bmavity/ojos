@@ -1,9 +1,8 @@
-var uuid = require('node-uuid'),
-    bus = require('masstransit').create();
+var bus = require('masstransit').create();
 
-var start = function start(agent, name) {
+var start = function start(id, agent, name) {
   var session = {
-    id: uuid(),
+    id: id,
     browser: agent.pretty(),
     name: name,
     os: agent.prettyOs(),
@@ -11,8 +10,7 @@ var start = function start(agent, name) {
   };
   bus.publish('sessionStarted', session);
   return {
-    model: session,
-    actions: ['index']
+    model: session
   };
 };
 
