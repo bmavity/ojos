@@ -1,8 +1,7 @@
-var getModel = function() {
+var uuid = require('node-uuid');
+
+module.exports = exports = function() {
   return {
-    model: {},
-    actions: []
+    id: uuid()
   };
 };
-
-module.exports = exports = getModel;
