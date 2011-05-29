@@ -1,9 +1,9 @@
+var wotan = require('wotan');
+
 var getActions = function(id) {
   if(id) {
     return {
-      index: {
-        href: '/sessions/' + id
-      }
+      index: wotan.getAction('index', { id: id })
     };
   }
   return {
