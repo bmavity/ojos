@@ -4,7 +4,7 @@
   "dependencies": {
     "caruso": "0.0.2",
     "connect": "1.2.1",
-    "masstransit": "0.1.1",
+    "masstransit": "0.1.2",
     "node-uuid": "1.1.0",
     "socket.io": "0.6.17",
     "useragent": "0.1.1",
