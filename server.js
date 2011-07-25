@@ -51,7 +51,6 @@ var routes = function routes(app) {
 
 server = connect.createServer();
 server.use(connect.logger());
-server.use(require('connect-conneg').acceptedTypes);
 server.use(require('wagner').connect({ basePath: __dirname + '/public/js/' }));
 server.use(connect.bodyParser());
 wotan.initializeTransport('http', {
