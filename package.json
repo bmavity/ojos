@@ -6,7 +6,7 @@
     "connect": "1.2.1",
     "masstransit": "0.1.2",
     "node-uuid": "1.1.0",
-    "socket.io": "0.6.17",
+    "socket.io": "0.7.0",
     "useragent": "0.1.1",
     "vows": "0.5.8",
     "zombie": "0.9.4"
